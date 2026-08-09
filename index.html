@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarGemKids ⭐</title>
+<style>
+  :root {
+    --purple: #7c3aed;
+    --purple-light: #a78bfa;
+    --pink: #ec4899;
+    --gold: #f59e0b;
+    --bg: #fdf4ff;
+    --card: #ffffff;
+    --text: #1e1b4b;
+    --muted: #6b7280;
+    --border: #e9d5ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* Auth Screen */
+  #authScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #f59e0b 100%); }
+  .auth-card { background: white; border-radius: 24px; padding: 40px 32px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: center; }
+  .auth-logo { font-size: 56px; margin-bottom: 8px; }
+  .auth-title { font-size: 28px; font-weight: 900; background: linear-gradient(135deg, var(--purple), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+  .auth-subtitle { color: var(--muted); margin-bottom: 28px; font-size: 14px; }
+  .auth-tabs { display: flex; background: #f3f4f6; border-radius: 12px; padding: 4px; margin-bottom: 24px; }
+  .auth-tab { flex: 1; padding: 8px; border: none; background: none; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--muted); transition: all 0.2s; }
+  .auth-tab.active { background: white; color: var(--purple); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .form-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; margin-bottom: 12px; outline: none; transition: border-color 0.2s; }
+  .form-input:focus { border-color: var(--purple-light); }
+  .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s; }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .auth-error { color: #ef4444; font-size: 13px; margin-bottom: 8px; }
+
+  /* App Layout */
+  #app { display: none; }
+  .header { background: white; border-bottom: 2px solid var(--border); padding: 12px 16px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; }
+  .header-logo { font-size: 22px; font-weight: 900; background: linear-gradient(135deg, var(--purple), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .prea-balance { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid var(--gold); border-radius: 20px; padding: 6px 14px; font-weight: 700; color: #92400e; font-size: 15px; }
+  .nav { background: white; border-top: 2px solid var(--border); position: fixed; bottom: 0; left: 0; right: 0; display: flex; z-index: 100; }
+  .nav-btn { flex: 1; padding: 12px 4px 8px; border: none; background: none; cursor: pointer; font-size: 22px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--muted); transition: color 0.2s; }
+  .nav-btn span { font-size: 11px; font-weight: 600; }
+  .nav-btn.active { color: var(--purple); }
+  .page { display: none; padding: 16px; padding-bottom: 80px; max-width: 600px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* Cards */
+  .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+  /* Post composer */
+  .compose-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-light), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; border: 2px solid var(--border); overflow: hidden; }
+  .compose-row { display: flex; gap: 10px; align-items: flex-start; }
+  .compose-input { flex: 1; border: 2px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 15px; resize: none; outline: none; transition: border-color 0.2s; min-height: 60px; font-family: inherit; }
+  .compose-input:focus { border-color: var(--purple-light); }
+  .compose-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; align-items: center; }
+  .emoji-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .emoji-btn { font-size: 20px; background: #f3f4f6; border: none; border-radius: 8px; padding: 4px 6px; cursor: pointer; transition: transform 0.1s; }
+  .emoji-btn:hover { transform: scale(1.2); }
+  .btn-post { background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; border: none; border-radius: 10px; padding: 8px 18px; font-weight: 700; cursor: pointer; font-size: 14px; }
+  .earn-badge { background: #fef3c7; color: #92400e; border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+
+  /* Post card */
+  .post-header { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .post-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-light), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 2px solid var(--border); overflow: hidden; }
+  .post-meta { flex: 1; }
+  .post-username { font-weight: 700; font-size: 14px; }
+  .post-time { font-size: 12px; color: var(--muted); }
+  .post-content { font-size: 15px; line-height: 1.5; margin-bottom: 12px; }
+  .post-actions { display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .action-btn { background: none; border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); transition: all 0.2s; display: flex; align-items: center; gap: 4px; }
+  .action-btn:hover { background: #f3f4f6; }
+  .action-btn.liked { background: #fce7f3; border-color: var(--pink); color: var(--pink); }
+  .comments-section { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .comment { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+  .comment-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-light), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .comment-bubble { background: #f3f4f6; border-radius: 12px; padding: 6px 10px; font-size: 13px; }
+  .comment-user { font-weight: 700; font-size: 12px; }
+  .comment-input-row { display: flex; gap: 8px; margin-top: 8px; }
+  .comment-input { flex: 1; border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; font-size: 13px; outline: none; font-family: inherit; }
+  .btn-comment { background: var(--purple); color: white; border: none; border-radius: 20px; padding: 6px 14px; font-size: 13px; cursor: pointer; font-weight: 600; }
+
+  /* Shop */
+  .shop-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .shop-tab { padding: 6px 14px; border-radius: 20px; border: 2px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); transition: all 0.2s; }
+  .shop-tab.active { background: var(--purple); border-color: var(--purple); color: white; }
+  .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .shop-item { background: white; border-radius: 16px; border: 2px solid var(--border); padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .shop-item:hover { border-color: var(--purple-light); transform: translateY(-2px); }
+  .shop-item.owned { border-color: #10b981; background: #f0fdf4; }
+  .shop-item.equipped { border-color: var(--gold); background: #fffbeb; }
+  .shop-emoji { font-size: 40px; margin-bottom: 8px; }
+  .shop-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .shop-price { font-size: 13px; color: var(--gold); font-weight: 700; }
+  .shop-owned { font-size: 12px; color: #10b981; font-weight: 700; }
+  .btn-buy { margin-top: 8px; background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; border: none; border-radius: 10px; padding: 6px 14px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; }
+  .btn-equip { margin-top: 8px; background: linear-gradient(135deg, var(--gold), #f97316); color: white; border: none; border-radius: 10px; padding: 6px 14px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; }
+
+  /* Avatar */
+  .avatar-display { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #e9d5ff, #fce7f3); display: flex; align-items: center; justify-content: center; font-size: 60px; margin: 0 auto 16px; border: 4px solid var(--purple-light); position: relative; overflow: hidden; }
+  .avatar-large { width: 100px; height: 100px; font-size: 50px; }
+
+  /* Profile */
+  .profile-header { text-align: center; padding: 24px; }
+  .profile-name { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+  .profile-stats { display: flex; justify-content: center; gap: 24px; margin-top: 16px; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 900; color: var(--purple); }
+  .stat-label { font-size: 12px; color: var(--muted); }
+  .section-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; color: var(--text); }
+
+  /* Sparkle animation */
+  @keyframes sparkle { 0% { transform: scale(0) rotate(0deg); opacity: 1; } 100% { transform: scale(1.5) rotate(45deg); opacity: 0; } }
+  .sparkle { position: fixed; font-size: 24px; pointer-events: none; animation: sparkle 0.8s ease-out forwards; z-index: 9999; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeInUp 0.3s ease-out; }
+
+  /* Toast */
+  .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 700; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; font-size: 14px; }
+  .toast.show { opacity: 1; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .logout-btn { background: none; border: 1px solid var(--border); border-radius: 10px; padding: 8px 16px; cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- Auth Screen -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">⭐</div>
+    <div class="auth-title">StarGemKids</div>
+    <div class="auth-subtitle">Your social world, your way!</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Log In</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <div id="authError" class="auth-error"></div>
+    <input type="text" id="authUsername" class="form-input" placeholder="Username" maxlength="20">
+    <input type="password" id="authPassword" class="form-input" placeholder="Password">
+    <button class="btn-primary" id="authBtn" onclick="handleAuth()">Log In</button>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="header">
+    <div class="header-logo">⭐ StarGemKids</div>
+    <div class="prea-balance" id="preaDisplay">💎 0 Prea</div>
+  </div>
+
+  <!-- Feed Page -->
+  <div class="page active" id="feedPage">
+    <div class="card">
+      <div class="compose-row">
+        <div class="compose-avatar" id="composeAvatar">😊</div>
+        <textarea class="compose-input" id="postInput" placeholder="What's on your mind? ✨" rows="2"></textarea>
+      </div>
+      <div class="emoji-picker">
+        <button class="emoji-btn" onclick="addEmoji('😊')">😊</button>
+        <button class="emoji-btn" onclick="addEmoji('🌟')">🌟</button>
+        <button class="emoji-btn" onclick="addEmoji('💖')">💖</button>
+        <button class="emoji-btn" onclick="addEmoji('🎉')">🎉</button>
+        <button class="emoji-btn" onclick="addEmoji('🌈')">🌈</button>
+        <button class="emoji-btn" onclick="addEmoji('🦄')">🦄</button>
+        <button class="emoji-btn" onclick="addEmoji('✨')">✨</button>
+        <button class="emoji-btn" onclick="addEmoji('🎵')">🎵</button>
+      </div>
+      <div class="compose-actions">
+        <span class="earn-badge">+5 💎 Prea per post</span>
+        <button class="btn-post" onclick="submitPost()">Post ✨</button>
+      </div>
+    </div>
+    <div id="feedContainer"></div>
+  </div>
+
+  <!-- Shop Page -->
+  <div class="page" id="shopPage">
+    <div class="section-title">🛍️ Prea Shop</div>
+    <div class="shop-tabs">
+      <button class="shop-tab active" onclick="switchShopTab('hats')">🎩 Hats</button>
+      <button class="shop-tab" onclick="switchShopTab('outfits')">👗 Outfits</button>
+      <button class="shop-tab" onclick="switchShopTab('accessories')">💎 Accessories</button>
+      <button class="shop-tab" onclick="switchShopTab('backgrounds')">🌈 Backgrounds</button>
+    </div>
+    <div class="shop-grid" id="shopGrid"></div>
+  </div>
+
+  <!-- Avatar Page -->
+  <div class="page" id="avatarPage">
+    <div class="section-title">🎨 My Avatar</div>
+    <div class="card" style="text-align:center;">
+      <div class="avatar-display" id="avatarPreview">😊</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Your avatar appears on all your posts!</div>
+    </div>
+    <div class="section-title">Choose your look:</div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:8px;">😊 Face</div>
+      <div class="emoji-picker" id="faceSelector"></div>
+    </div>
+    <div class="card" id="hatEquipCard">
+      <div style="font-weight:700;margin-bottom:8px;">🎩 Hat (equipped: <span id="equippedHatLabel">None</span>)</div>
+      <div class="emoji-picker" id="hatSelector"></div>
+    </div>
+    <div class="card" id="accessoryEquipCard">
+      <div style="font-weight:700;margin-bottom:8px;">💎 Accessory (equipped: <span id="equippedAccLabel">None</span>)</div>
+      <div class="emoji-picker" id="accSelector"></div>
+    </div>
+  </div>
+
+  <!-- Profile Page -->
+  <div class="page" id="profilePage">
+    <div class="card profile-header">
+      <div class="avatar-display" id="profileAvatar">😊</div>
+      <div class="profile-name" id="profileName">Username</div>
+      <div class="prea-balance" id="profilePrea" style="display:inline-block;margin-top:8px;">💎 0 Prea</div>
+      <div class="profile-stats">
+        <div class="stat"><div class="stat-num" id="statPosts">0</div><div class="stat-label">Posts</div></div>
+        <div class="stat"><div class="stat-num" id="statLikes">0</div><div class="stat-label">Likes</div></div>
+        <div class="stat"><div class="stat-num" id="statPrea">0</div><div class="stat-label">Prea Earned</div></div>
+      </div>
+    </div>
+    <div class="section-title">My Posts</div>
+    <div id="myPostsContainer"></div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="logout-btn" onclick="logout()">👋 Log Out</button>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showPage('feed')" id="navFeed">🏠<span>Home</span></button>
+    <button class="nav-btn" onclick="showPage('shop')" id="navShop">🛍️<span>Shop</span></button>
+    <button class="nav-btn" onclick="showPage('avatar')" id="navAvatar">🎨<span>Avatar</span></button>
+    <button class="nav-btn" onclick="showPage('profile')" id="navProfile">👤<span>Profile</span></button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== DATA ====================
+const SHOP_ITEMS = {
+  hats: [
+    { id: 'hat1', name: 'Party Hat', emoji: '🎉', price: 10 },
+    { id: 'hat2', name: 'Crown', emoji: '👑', price: 30 },
+    { id: 'hat3', name: 'Wizard Hat', emoji: '🧙', price: 20 },
+    { id: 'hat4', name: 'Cowboy Hat', emoji: '🤠', price: 15 },
+    { id: 'hat5', name: 'Santa Hat', emoji: '🎅', price: 25 },
+    { id: 'hat6', name: 'Top Hat', emoji: '🎩', price: 35 },
+  ],
+  outfits: [
+    { id: 'out1', name: 'Princess Dress', emoji: '👸', price: 25 },
+    { id: 'out2', name: 'Superhero Cape', emoji: '🦸', price: 30 },
+    { id: 'out3', name: 'Astronaut Suit', emoji: '👨‍🚀', price: 40 },
+    { id: 'out4', name: 'Chef Outfit', emoji: '👨‍🍳', price: 20 },
+    { id: 'out5', name: 'Ninja Outfit', emoji: '🥷', price: 35 },
+    { id: 'out6', name: 'Fairy Costume', emoji: '🧚', price: 45 },
+  ],
+  accessories: [
+    { id: 'acc1', name: 'Sunglasses', emoji: '😎', price: 15 },
+    { id: 'acc2', name: 'Rainbow', emoji: '🌈', price: 20 },
+    { id: 'acc3', name: 'Sparkles', emoji: '✨', price: 10 },
+    { id: 'acc4', name: 'Heart Eyes', emoji: '😍', price: 12 },
+    { id: 'acc5', name: 'Star Wand', emoji: '⭐', price: 18 },
+    { id: 'acc6', name: 'Unicorn Horn', emoji: '🦄', price: 30 },
+  ],
+  backgrounds: [
+    { id: 'bg1', name: 'Rainbow Sky', emoji: '🌈', price: 30 },
+    { id: 'bg2', name: 'Space', emoji: '🚀', price: 40 },
+    { id: 'bg3', name: 'Ocean', emoji: '🌊', price: 35 },
+    { id: 'bg4', name: 'Forest', emoji: '🌲', price: 30 },
+    { id: 'bg5', name: 'Candy Land', emoji: '🍭', price: 45 },
+    { id: 'bg6', name: 'Castle', emoji: '🏰', price: 50 },
+  ]
+};
+
+const FACES = ['😊','😄','😁','🥰','😎','🤩','😜','🤗','😇','🥳','😏','🤓'];
+
+let currentUser = null;
+let currentShopTab = 'hats';
+
+// ==================== STORAGE ====================
+function getUsers() { return JSON.parse(localStorage.getItem('sgk_users') || '{}'); }
+function saveUsers(u) { localStorage.setItem('sgk_users', JSON.stringify(u)); }
+function getPosts() { return JSON.parse(localStorage.getItem('sgk_posts') || '[]'); }
+function savePosts(p) { localStorage.setItem('sgk_posts', JSON.stringify(p)); }
+function getCurrentUser() { return JSON.parse(localStorage.getItem('sgk_current') || 'null'); }
+function saveCurrentUser(u) { localStorage.setItem('sgk_current', JSON.stringify(u)); currentUser = u; }
+
+// ==================== AUTH ====================
+let authMode = 'login';
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (mode === 'login')));
+  document.getElementById('authBtn').textContent = mode === 'login' ? 'Log In' : 'Sign Up';
+  document.getElementById('authError').textContent = '';
+}
+
+function handleAuth() {
+  const username = document.getElementById('authUsername').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  if (!username || !password) { errEl.textContent = 'Please fill in both fields!'; return; }
+  const users = getUsers();
+  if (authMode === 'signup') {
+    if (users[username]) { errEl.textContent = 'Username already taken!'; return; }
+    if (username.length < 3) { errEl.textContent = 'Username must be at least 3 characters!'; return; }
+    users[username] = { username, password, prea: 50, face: '😊', hat: null, accessory: null, background: null, ownedItems: [], totalLikes: 0, preaEarned: 50 };
+    saveUsers(users);
+    saveCurrentUser(users[username]);
+    showToast('Welcome to StarGemKids! You got 50 💎 Prea to start! 🎉');
+  } else {
+    if (!users[username] || users[username].password !== password) { errEl.textContent = 'Wrong username or password!'; return; }
+    saveCurrentUser(users[username]);
+  }
+  startApp();
+}
+
+function logout() {
+  localStorage.removeItem('sgk_current');
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('authUsername').value = '';
+  document.getElementById('authPassword').value = '';
+}
+
+// ==================== APP START ====================
+function startApp() {
+  currentUser = getCurrentUser();
+  if (!currentUser) return;
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  updatePreaDisplay();
+  renderFeed();
+  renderAvatarEditor();
+  updateProfileAvatar();
+}
+
+// ==================== PREA ====================
+function addPrea(amount, label) {
+  const users = getUsers();
+  users[currentUser.username].prea += amount;
+  users[currentUser.username].preaEarned = (users[currentUser.username].preaEarned || 0) + Math.max(0, amount);
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  updatePreaDisplay();
+  showToast(`+${amount} 💎 Prea ${label || ''}!`);
+  spawnSparkles();
+}
+
+function updatePreaDisplay() {
+  const balance = currentUser.prea;
+  document.getElementById('preaDisplay').textContent = `💎 ${balance} Prea`;
+  document.getElementById('profilePrea').textContent = `💎 ${balance} Prea`;
+  document.getElementById('statPrea').textContent = currentUser.preaEarned || 0;
+}
+
+// ==================== POSTS ====================
+function addEmoji(e) { document.getElementById('postInput').value += e; document.getElementById('postInput').focus(); }
+
+function submitPost() {
+  const text = document.getElementById('postInput').value.trim();
+  if (!text) { showToast('Write something first! ✍️'); return; }
+  const posts = getPosts();
+  const post = {
+    id: Date.now().toString(),
+    username: currentUser.username,
+    content: text,
+    time: new Date().toISOString(),
+    likes: [],
+    comments: [],
+    avatar: buildAvatarEmoji()
+  };
+  posts.unshift(post);
+  savePosts(posts);
+  document.getElementById('postInput').value = '';
+  addPrea(5, 'for posting');
+  renderFeed();
+  // update profile stats
+  const users = getUsers();
+  users[currentUser.username].postCount = (users[currentUser.username].postCount || 0) + 1;
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+}
+
+function buildAvatarEmoji() {
+  return currentUser.face || '😊';
+}
+
+function timeAgo(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+function renderFeed() {
+  const posts = getPosts();
+  const container = document.getElementById('feedContainer');
+  if (posts.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><div>No posts yet! Be the first to post!</div></div>';
+    return;
+  }
+  container.innerHTML = posts.map(post => `
+    <div class="card fade-in" id="post-${post.id}">
+      <div class="post-header">
+        <div class="post-avatar">${post.avatar || '😊'}</div>
+        <div class="post-meta">
+          <div class="post-username">${escHtml(post.username)}</div>
+          <div class="post-time">${timeAgo(post.time)}</div>
+        </div>
+      </div>
+      <div class="post-content">${escHtml(post.content)}</div>
+      <div class="post-actions">
+        <button class="action-btn ${post.likes.includes(currentUser.username) ? 'liked' : ''}" onclick="likePost('${post.id}')">
+          ❤️ ${post.likes.length} Like${post.likes.length !== 1 ? 's' : ''}
+        </button>
+        <button class="action-btn" onclick="toggleComments('${post.id}')">
+          💬 ${post.comments.length} Comment${post.comments.length !== 1 ? 's' : ''}
+        </button>
+      </div>
+      <div class="comments-section" id="comments-${post.id}" style="display:none;">
+        ${post.comments.map(c => `
+          <div class="comment">
+            <div class="comment-avatar">${c.avatar || '😊'}</div>
+            <div class="comment-bubble"><div class="comment-user">${escHtml(c.username)}</div>${escHtml(c.text)}</div>
+          </div>
+        `).join('')}
+        <div class="comment-input-row">
+          <input class="comment-input" id="cinput-${post.id}" placeholder="Add a comment..." onkeydown="if(event.key==='Enter')submitComment('${post.id}')">
+          <button class="btn-comment" onclick="submitComment('${post.id}')">Post</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  // update compose avatar
+  document.getElementById('composeAvatar').textContent = buildAvatarEmoji();
+  // update stats
+  const myPosts = posts.filter(p => p.username === currentUser.username);
+  const myLikes = myPosts.reduce((sum, p) => sum + p.likes.length, 0);
+  document.getElementById('statPosts').textContent = myPosts.length;
+  document.getElementById('statLikes').textContent = myLikes;
+}
+
+function likePost(postId) {
+  const posts = getPosts();
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+  const idx = post.likes.indexOf(currentUser.username);
+  if (idx === -1) {
+    post.likes.push(currentUser.username);
+    // reward post owner
+    if (post.username !== currentUser.username) {
+      const users = getUsers();
+      if (users[post.username]) {
+        users[post.username].prea += 1;
+        users[post.username].preaEarned = (users[post.username].preaEarned || 0) + 1;
+        saveUsers(users);
+        if (post.username === currentUser.username) saveCurrentUser(users[currentUser.username]);
+      }
+    }
+  } else {
+    post.likes.splice(idx, 1);
+  }
+  savePosts(posts);
+  renderFeed();
+}
+
+function toggleComments(postId) {
+  const el = document.getElementById(`comments-${postId}`);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function submitComment(postId) {
+  const input = document.getElementById(`cinput-${postId}`);
+  const text = input.value.trim();
+  if (!text) return;
+  const posts = getPosts();
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+  post.comments.push({ username: currentUser.username, text, avatar: buildAvatarEmoji(), time: new Date().toISOString() });
+  savePosts(posts);
+  input.value = '';
+  renderFeed();
+  setTimeout(() => toggleComments(postId), 10);
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ==================== SHOP ====================
+function switchShopTab(tab) {
+  currentShopTab = tab;
+  document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderShop();
+}
+
+function renderShop() {
+  const items = SHOP_ITEMS[currentShopTab];
+  const grid = document.getElementById('shopGrid');
+  grid.innerHTML = items.map(item => {
+    const owned = currentUser.ownedItems && currentUser.ownedItems.includes(item.id);
+    const equipped = currentUser.hat === item.id || currentUser.accessory === item.id;
+    return `
+      <div class="shop-item ${equipped ? 'equipped' : owned ? 'owned' : ''}">
+        <div class="shop-emoji">${item.emoji}</div>
+        <div class="shop-name">${item.name}</div>
+        ${equipped ? '<div class="shop-owned">✅ Equipped</div>' :
+          owned ? '<div class="shop-owned">✅ Owned</div>' :
+          `<div class="shop-price">💎 ${item.price} Prea</div>`}
+        ${!owned && !equipped ? `<button class="btn-buy" onclick="buyItem('${item.id}','${currentShopTab}')">Buy</button>` : ''}
+        ${owned && !equipped && (currentShopTab === 'hats' || currentShopTab === 'accessories') ? `<button class="btn-equip" onclick="equipItem('${item.id}','${currentShopTab}')">Equip</button>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function buyItem(itemId, category) {
+  const allItems = Object.values(SHOP_ITEMS).flat();
+  const item = allItems.find(i => i.id === itemId);
+  if (!item) return;
+  if (currentUser.prea < item.price) { showToast(`Not enough Prea! Need ${item.price} 💎`); return; }
+  const users = getUsers();
+  users[currentUser.username].prea -= item.price;
+  users[currentUser.username].ownedItems = users[currentUser.username].ownedItems || [];
+  users[currentUser.username].ownedItems.push(itemId);
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  updatePreaDisplay();
+  showToast(`Got ${item.emoji} ${item.name}!`);
+  renderShop();
+  renderAvatarEditor();
+}
+
+function equipItem(itemId, category) {
+  const users = getUsers();
+  if (category === 'hats') users[currentUser.username].hat = itemId;
+  if (category === 'accessories') users[currentUser.username].accessory = itemId;
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  renderShop();
+  renderAvatarEditor();
+  updateProfileAvatar();
+  showToast('Equipped! ✨');
+}
+
+// ==================== AVATAR ====================
+function renderAvatarEditor() {
+  // Face selector
+  const faceEl = document.getElementById('faceSelector');
+  faceEl.innerHTML = FACES.map(f => `
+    <button class="emoji-btn" onclick="setFace('${f}')" style="${currentUser.face === f ? 'background:#e9d5ff;' : ''}">${f}</button>
+  `).join('');
+
+  // Hat selector
+  const hatEl = document.getElementById('hatSelector');
+  const ownedHats = (currentUser.ownedItems || []).filter(id => SHOP_ITEMS.hats.find(h => h.id === id));
+  if (ownedHats.length === 0) {
+    hatEl.innerHTML = '<span style="font-size:13px;color:var(--muted)">Buy hats in the shop! 🛍️</span>';
+  } else {
+    hatEl.innerHTML = ownedHats.map(id => {
+      const hat = SHOP_ITEMS.hats.find(h => h.id === id);
+      return `<button class="emoji-btn" onclick="equipItem('${id}','hats')" style="${currentUser.hat === id ? 'background:#e9d5ff;' : ''}">${hat.emoji}</button>`;
+    }).join('') + `<button class="emoji-btn" onclick="unequipHat()" title="Remove hat">❌</button>`;
+  }
+  document.getElementById('equippedHatLabel').textContent = currentUser.hat ? (SHOP_ITEMS.hats.find(h => h.id === currentUser.hat) || {}).emoji || 'None' : 'None';
+
+  // Accessory selector
+  const accEl = document.getElementById('accSelector');
+  const ownedAccs = (currentUser.ownedItems || []).filter(id => SHOP_ITEMS.accessories.find(a => a.id === id));
+  if (ownedAccs.length === 0) {
+    accEl.innerHTML = '<span style="font-size:13px;color:var(--muted)">Buy accessories in the shop! 🛍️</span>';
+  } else {
+    accEl.innerHTML = ownedAccs.map(id => {
+      const acc = SHOP_ITEMS.accessories.find(a => a.id === id);
+      return `<button class="emoji-btn" onclick="equipItem('${id}','accessories')" style="${currentUser.accessory === id ? 'background:#e9d5ff;' : ''}">${acc.emoji}</button>`;
+    }).join('') + `<button class="emoji-btn" onclick="unequipAcc()" title="Remove accessory">❌</button>`;
+  }
+  document.getElementById('equippedAccLabel').textContent = currentUser.accessory ? (SHOP_ITEMS.accessories.find(a => a.id === currentUser.accessory) || {}).emoji || 'None' : 'None';
+
+  updateAvatarPreview();
+}
+
+function setFace(face) {
+  const users = getUsers();
+  users[currentUser.username].face = face;
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  renderAvatarEditor();
+  updateProfileAvatar();
+}
+
+function unequipHat() {
+  const users = getUsers();
+  users[currentUser.username].hat = null;
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  renderAvatarEditor();
+}
+
+function unequipAcc() {
+  const users = getUsers();
+  users[currentUser.username].accessory = null;
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  renderAvatarEditor();
+}
+
+function updateAvatarPreview() {
+  const face = currentUser.face || '😊';
+  const hatItem = currentUser.hat ? SHOP_ITEMS.hats.find(h => h.id === currentUser.hat) : null;
+  const accItem = currentUser.accessory ? SHOP_ITEMS.accessories.find(a => a.id === currentUser.accessory) : null;
+  let display = face;
+  if (hatItem) display = hatItem.emoji + display;
+  if (accItem) display = display + accItem.emoji;
+  document.getElementById('avatarPreview').textContent = display;
+  document.getElementById('composeAvatar').textContent = face;
+}
+
+function updateProfileAvatar() {
+  const face = currentUser.face || '😊';
+  const hatItem = currentUser.hat ? SHOP_ITEMS.hats.find(h => h.id === currentUser.hat) : null;
+  const accItem = currentUser.accessory ? SHOP_ITEMS.accessories.find(a => a.id === currentUser.accessory) : null;
+  let display = face;
+  if (hatItem) display = hatItem.emoji + display;
+  if (accItem) display = display + accItem.emoji;
+  document.getElementById('profileAvatar').textContent = display;
+  document.getElementById('profileName').textContent = currentUser.username;
+}
+
+// ==================== PROFILE ====================
+function renderProfile() {
+  updateProfileAvatar();
+  updatePreaDisplay();
+  const posts = getPosts().filter(p => p.username === currentUser.username);
+  const container = document.getElementById('myPostsContainer');
+  if (posts.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div>No posts yet!</div></div>';
+    return;
+  }
+  container.innerHTML = posts.map(post => `
+    <div class="card">
+      <div class="post-content">${escHtml(post.content)}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;">❤️ ${post.likes.length} likes · 💬 ${post.comments.length} comments · ${timeAgo(post.time)}</div>
+    </div>
+  `).join('');
+}
+
+// ==================== NAV ====================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(page + 'Page').classList.add('active');
+  document.getElementById('nav' + page.charAt(0).toUpperCase() + page.slice(1)).classList.add('active');
+  if (page === 'shop') renderShop();
+  if (page === 'avatar') renderAvatarEditor();
+  if (page === 'profile') renderProfile();
+  if (page === 'feed') renderFeed();
+}
+
+// ==================== EFFECTS ====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function spawnSparkles() {
+  const emojis = ['⭐','💎','✨','🌟','💫'];
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      const s = document.createElement('div');
+      s.className = 'sparkle';
+      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      s.style.left = Math.random() * 80 + 10 + 'vw';
+      s.style.top = Math.random() * 50 + 20 + 'vh';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 800);
+    }, i * 100);
+  }
+}
+
+// ==================== INIT ====================
+window.onload = () => {
+  const user = getCurrentUser();
+  if (user) { startApp(); }
+};
+</script>
+</body>
+</html>
