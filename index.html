@@ -19,7 +19,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-  /* Auth Screen */
   #authScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #f59e0b 100%); }
   .auth-card { background: white; border-radius: 24px; padding: 40px 32px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: center; }
   .auth-logo { font-size: 56px; margin-bottom: 8px; }
@@ -30,51 +29,63 @@
   .auth-tab.active { background: white; color: var(--purple); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
   .form-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; margin-bottom: 12px; outline: none; transition: border-color 0.2s; }
   .form-input:focus { border-color: var(--purple-light); }
-  .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s; }
-  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
+  .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
   .auth-error { color: #ef4444; font-size: 13px; margin-bottom: 8px; }
 
-  /* App Layout */
   #app { display: none; }
   .header { background: white; border-bottom: 2px solid var(--border); padding: 12px 16px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; }
   .header-logo { font-size: 22px; font-weight: 900; background: linear-gradient(135deg, var(--purple), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .prea-balance { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid var(--gold); border-radius: 20px; padding: 6px 14px; font-weight: 700; color: #92400e; font-size: 15px; }
   .nav { background: white; border-top: 2px solid var(--border); position: fixed; bottom: 0; left: 0; right: 0; display: flex; z-index: 100; }
-  .nav-btn { flex: 1; padding: 12px 4px 8px; border: none; background: none; cursor: pointer; font-size: 22px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--muted); transition: color 0.2s; }
+  .nav-btn { flex: 1; padding: 12px 4px 8px; border: none; background: none; cursor: pointer; font-size: 22px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--muted); }
   .nav-btn span { font-size: 11px; font-weight: 600; }
   .nav-btn.active { color: var(--purple); }
   .page { display: none; padding: 16px; padding-bottom: 80px; max-width: 600px; margin: 0 auto; }
   .page.active { display: block; }
-
-  /* Cards */
   .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
-  /* Post composer */
-  .compose-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-light), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; border: 2px solid var(--border); overflow: hidden; }
+  /* Compose */
+  .compose-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-light), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; border: 2px solid var(--border); }
   .compose-row { display: flex; gap: 10px; align-items: flex-start; }
-  .compose-input { flex: 1; border: 2px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 15px; resize: none; outline: none; transition: border-color 0.2s; min-height: 60px; font-family: inherit; }
+  .compose-input { flex: 1; border: 2px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 15px; resize: none; outline: none; min-height: 60px; font-family: inherit; }
   .compose-input:focus { border-color: var(--purple-light); }
-  .compose-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; align-items: center; }
-  .emoji-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .emoji-btn { font-size: 20px; background: #f3f4f6; border: none; border-radius: 8px; padding: 4px 6px; cursor: pointer; transition: transform 0.1s; }
-  .emoji-btn:hover { transform: scale(1.2); }
-  .btn-post { background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; border: none; border-radius: 10px; padding: 8px 18px; font-weight: 700; cursor: pointer; font-size: 14px; }
+  .compose-toolbar { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .toolbar-btn { background: #f3f4f6; border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 4px; }
+  .toolbar-btn:hover { background: #e9d5ff; }
+  .toolbar-btn input { display: none; }
+  .emoji-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .emoji-btn { font-size: 20px; background: #f3f4f6; border: none; border-radius: 8px; padding: 4px 6px; cursor: pointer; }
+  .sticker-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; background: #fdf4ff; border-radius: 12px; padding: 10px; }
+  .sticker-btn { font-size: 26px; background: none; border: 2px solid transparent; border-radius: 8px; padding: 2px 4px; cursor: pointer; }
+  .sticker-btn:hover { border-color: var(--purple-light); background: white; }
+  .text-style-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .style-btn { padding: 5px 12px; border: 2px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 13px; background: white; }
+  .style-btn.active { border-color: var(--purple); background: #f5f3ff; }
+  .color-row { display: flex; gap: 6px; margin-top: 6px; }
+  .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+  .color-dot.active { border-color: var(--text); }
+  .media-preview { margin-top: 10px; position: relative; display: inline-block; max-width: 100%; }
+  .media-preview img, .media-preview video { max-width: 100%; max-height: 200px; border-radius: 12px; display: block; }
+  .remove-media { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 12px; }
+  .btn-post { background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; border: none; border-radius: 10px; padding: 8px 18px; font-weight: 700; cursor: pointer; font-size: 14px; margin-left: auto; }
   .earn-badge { background: #fef3c7; color: #92400e; border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
 
-  /* Post card */
+  /* Posts */
   .post-header { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
-  .post-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-light), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 2px solid var(--border); overflow: hidden; }
+  .post-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-light), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 2px solid var(--border); }
   .post-meta { flex: 1; }
   .post-username { font-weight: 700; font-size: 14px; }
   .post-time { font-size: 12px; color: var(--muted); }
-  .post-content { font-size: 15px; line-height: 1.5; margin-bottom: 12px; }
+  .post-content { font-size: 15px; line-height: 1.6; margin-bottom: 10px; }
+  .post-stickers { font-size: 28px; margin-bottom: 8px; letter-spacing: 4px; }
+  .post-media { margin-bottom: 10px; }
+  .post-media img { width: 100%; border-radius: 12px; max-height: 400px; object-fit: cover; }
+  .post-media video { width: 100%; border-radius: 12px; max-height: 400px; }
   .post-actions { display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px; }
-  .action-btn { background: none; border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); transition: all 0.2s; display: flex; align-items: center; gap: 4px; }
-  .action-btn:hover { background: #f3f4f6; }
+  .action-btn { background: none; border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 4px; }
   .action-btn.liked { background: #fce7f3; border-color: var(--pink); color: var(--pink); }
   .comments-section { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
-  .comment { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+  .comment { display: flex; gap: 8px; margin-bottom: 8px; }
   .comment-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-light), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
   .comment-bubble { background: #f3f4f6; border-radius: 12px; padding: 6px 10px; font-size: 13px; }
   .comment-user { font-weight: 700; font-size: 12px; }
@@ -84,11 +95,10 @@
 
   /* Shop */
   .shop-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
-  .shop-tab { padding: 6px 14px; border-radius: 20px; border: 2px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); transition: all 0.2s; }
+  .shop-tab { padding: 6px 14px; border-radius: 20px; border: 2px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); }
   .shop-tab.active { background: var(--purple); border-color: var(--purple); color: white; }
   .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .shop-item { background: white; border-radius: 16px; border: 2px solid var(--border); padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
-  .shop-item:hover { border-color: var(--purple-light); transform: translateY(-2px); }
+  .shop-item { background: white; border-radius: 16px; border: 2px solid var(--border); padding: 16px; text-align: center; }
   .shop-item.owned { border-color: #10b981; background: #f0fdf4; }
   .shop-item.equipped { border-color: var(--gold); background: #fffbeb; }
   .shop-emoji { font-size: 40px; margin-bottom: 8px; }
@@ -99,36 +109,28 @@
   .btn-equip { margin-top: 8px; background: linear-gradient(135deg, var(--gold), #f97316); color: white; border: none; border-radius: 10px; padding: 6px 14px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; }
 
   /* Avatar */
-  .avatar-display { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #e9d5ff, #fce7f3); display: flex; align-items: center; justify-content: center; font-size: 60px; margin: 0 auto 16px; border: 4px solid var(--purple-light); position: relative; overflow: hidden; }
-  .avatar-large { width: 100px; height: 100px; font-size: 50px; }
-
-  /* Profile */
+  .avatar-display { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #e9d5ff, #fce7f3); display: flex; align-items: center; justify-content: center; font-size: 60px; margin: 0 auto 16px; border: 4px solid var(--purple-light); }
   .profile-header { text-align: center; padding: 24px; }
   .profile-name { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
   .profile-stats { display: flex; justify-content: center; gap: 24px; margin-top: 16px; }
   .stat { text-align: center; }
   .stat-num { font-size: 22px; font-weight: 900; color: var(--purple); }
   .stat-label { font-size: 12px; color: var(--muted); }
-  .section-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; color: var(--text); }
+  .section-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
 
-  /* Sparkle animation */
   @keyframes sparkle { 0% { transform: scale(0) rotate(0deg); opacity: 1; } 100% { transform: scale(1.5) rotate(45deg); opacity: 0; } }
   .sparkle { position: fixed; font-size: 24px; pointer-events: none; animation: sparkle 0.8s ease-out forwards; z-index: 9999; }
-  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-in { animation: fadeInUp 0.3s ease-out; }
-
-  /* Toast */
   .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 700; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; font-size: 14px; }
   .toast.show { opacity: 1; }
-
   .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
   .empty-icon { font-size: 48px; margin-bottom: 12px; }
   .logout-btn { background: none; border: 1px solid var(--border); border-radius: 10px; padding: 8px 16px; cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .panel { display: none; margin-top: 8px; }
+  .panel.open { display: block; }
 </style>
 </head>
 <body>
 
-<!-- Auth Screen -->
 <div id="authScreen">
   <div class="auth-card">
     <div class="auth-logo">⭐</div>
@@ -145,31 +147,99 @@
   </div>
 </div>
 
-<!-- App -->
 <div id="app">
   <div class="header">
     <div class="header-logo">⭐ StarGemKids</div>
     <div class="prea-balance" id="preaDisplay">💎 0 Prea</div>
   </div>
 
-  <!-- Feed Page -->
+  <!-- FEED -->
   <div class="page active" id="feedPage">
     <div class="card">
       <div class="compose-row">
         <div class="compose-avatar" id="composeAvatar">😊</div>
         <textarea class="compose-input" id="postInput" placeholder="What's on your mind? ✨" rows="2"></textarea>
       </div>
-      <div class="emoji-picker">
-        <button class="emoji-btn" onclick="addEmoji('😊')">😊</button>
-        <button class="emoji-btn" onclick="addEmoji('🌟')">🌟</button>
-        <button class="emoji-btn" onclick="addEmoji('💖')">💖</button>
-        <button class="emoji-btn" onclick="addEmoji('🎉')">🎉</button>
-        <button class="emoji-btn" onclick="addEmoji('🌈')">🌈</button>
-        <button class="emoji-btn" onclick="addEmoji('🦄')">🦄</button>
-        <button class="emoji-btn" onclick="addEmoji('✨')">✨</button>
-        <button class="emoji-btn" onclick="addEmoji('🎵')">🎵</button>
+
+      <!-- Stickers added to post -->
+      <div id="selectedStickers" style="font-size:26px;margin-top:6px;letter-spacing:4px;min-height:10px;"></div>
+
+      <!-- Media preview -->
+      <div id="mediaPreviewWrap"></div>
+
+      <!-- Toolbar -->
+      <div class="compose-toolbar">
+        <label class="toolbar-btn">📸 Photo
+          <input type="file" accept="image/*" id="photoInput" onchange="handleMedia(event,'image')">
+        </label>
+        <label class="toolbar-btn">🎬 Video
+          <input type="file" accept="video/*" id="videoInput" onchange="handleMedia(event,'video')">
+        </label>
+        <button class="toolbar-btn" onclick="togglePanel('emojiPanel')">😊 Emoji</button>
+        <button class="toolbar-btn" onclick="togglePanel('stickerPanel')">✨ Effects</button>
+        <button class="toolbar-btn" onclick="togglePanel('textPanel')">🎨 Text Style</button>
       </div>
-      <div class="compose-actions">
+
+      <div class="panel" id="emojiPanel">
+        <div class="emoji-row">
+          <button class="emoji-btn" onclick="addEmoji('😊')">😊</button>
+          <button class="emoji-btn" onclick="addEmoji('🌟')">🌟</button>
+          <button class="emoji-btn" onclick="addEmoji('💖')">💖</button>
+          <button class="emoji-btn" onclick="addEmoji('🎉')">🎉</button>
+          <button class="emoji-btn" onclick="addEmoji('🌈')">🌈</button>
+          <button class="emoji-btn" onclick="addEmoji('🦄')">🦄</button>
+          <button class="emoji-btn" onclick="addEmoji('✨')">✨</button>
+          <button class="emoji-btn" onclick="addEmoji('🎵')">🎵</button>
+          <button class="emoji-btn" onclick="addEmoji('🔥')">🔥</button>
+          <button class="emoji-btn" onclick="addEmoji('💯')">💯</button>
+          <button class="emoji-btn" onclick="addEmoji('🥰')">🥰</button>
+          <button class="emoji-btn" onclick="addEmoji('😜')">😜</button>
+        </div>
+      </div>
+
+      <div class="panel" id="stickerPanel">
+        <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:6px;">Tap to add effects to your post:</div>
+        <div class="sticker-row">
+          <button class="sticker-btn" onclick="addSticker('🌟')">🌟</button>
+          <button class="sticker-btn" onclick="addSticker('✨')">✨</button>
+          <button class="sticker-btn" onclick="addSticker('💫')">💫</button>
+          <button class="sticker-btn" onclick="addSticker('🎆')">🎆</button>
+          <button class="sticker-btn" onclick="addSticker('🎇')">🎇</button>
+          <button class="sticker-btn" onclick="addSticker('🦋')">🦋</button>
+          <button class="sticker-btn" onclick="addSticker('🌸')">🌸</button>
+          <button class="sticker-btn" onclick="addSticker('🍭')">🍭</button>
+          <button class="sticker-btn" onclick="addSticker('🌊')">🌊</button>
+          <button class="sticker-btn" onclick="addSticker('🎀')">🎀</button>
+          <button class="sticker-btn" onclick="addSticker('💎')">💎</button>
+          <button class="sticker-btn" onclick="addSticker('⭐')">⭐</button>
+          <button class="sticker-btn" onclick="addSticker('🏆')">🏆</button>
+          <button class="sticker-btn" onclick="addSticker('🎸')">🎸</button>
+          <button class="sticker-btn" onclick="addSticker('🌺')">🌺</button>
+          <button class="sticker-btn" onclick="addSticker('🦄')">🦄</button>
+        </div>
+        <div id="stickerPreview" style="margin-top:6px;font-size:13px;color:var(--muted);">Added effects: <span id="stickerList">none</span></div>
+      </div>
+
+      <div class="panel" id="textPanel">
+        <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:6px;">Text style:</div>
+        <div class="text-style-row">
+          <button class="style-btn" id="boldBtn" onclick="toggleStyle('bold')"><b>Bold</b></button>
+          <button class="style-btn" id="italicBtn" onclick="toggleStyle('italic')"><i>Italic</i></button>
+          <button class="style-btn" id="bigBtn" onclick="toggleStyle('big')">Big</button>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:var(--purple);margin:8px 0 4px;">Text color:</div>
+        <div class="color-row">
+          <div class="color-dot active" style="background:#1e1b4b;" onclick="setColor('#1e1b4b',this)"></div>
+          <div class="color-dot" style="background:#7c3aed;" onclick="setColor('#7c3aed',this)"></div>
+          <div class="color-dot" style="background:#ec4899;" onclick="setColor('#ec4899',this)"></div>
+          <div class="color-dot" style="background:#f59e0b;" onclick="setColor('#f59e0b',this)"></div>
+          <div class="color-dot" style="background:#10b981;" onclick="setColor('#10b981',this)"></div>
+          <div class="color-dot" style="background:#ef4444;" onclick="setColor('#ef4444',this)"></div>
+          <div class="color-dot" style="background:#3b82f6;" onclick="setColor('#3b82f6',this)"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
         <span class="earn-badge">+5 💎 Prea per post</span>
         <button class="btn-post" onclick="submitPost()">Post ✨</button>
       </div>
@@ -177,41 +247,40 @@
     <div id="feedContainer"></div>
   </div>
 
-  <!-- Shop Page -->
+  <!-- SHOP -->
   <div class="page" id="shopPage">
     <div class="section-title">🛍️ Prea Shop</div>
     <div class="shop-tabs">
-      <button class="shop-tab active" onclick="switchShopTab('hats')">🎩 Hats</button>
-      <button class="shop-tab" onclick="switchShopTab('outfits')">👗 Outfits</button>
-      <button class="shop-tab" onclick="switchShopTab('accessories')">💎 Accessories</button>
-      <button class="shop-tab" onclick="switchShopTab('backgrounds')">🌈 Backgrounds</button>
+      <button class="shop-tab active" onclick="switchShopTab('hats',this)">🎩 Hats</button>
+      <button class="shop-tab" onclick="switchShopTab('outfits',this)">👗 Outfits</button>
+      <button class="shop-tab" onclick="switchShopTab('accessories',this)">💎 Access.</button>
+      <button class="shop-tab" onclick="switchShopTab('backgrounds',this)">🌈 Bkgs</button>
     </div>
     <div class="shop-grid" id="shopGrid"></div>
   </div>
 
-  <!-- Avatar Page -->
+  <!-- AVATAR -->
   <div class="page" id="avatarPage">
     <div class="section-title">🎨 My Avatar</div>
     <div class="card" style="text-align:center;">
       <div class="avatar-display" id="avatarPreview">😊</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Your avatar appears on all your posts!</div>
     </div>
-    <div class="section-title">Choose your look:</div>
+    <div class="section-title">Customize:</div>
     <div class="card">
       <div style="font-weight:700;margin-bottom:8px;">😊 Face</div>
-      <div class="emoji-picker" id="faceSelector"></div>
+      <div class="emoji-row" id="faceSelector"></div>
     </div>
-    <div class="card" id="hatEquipCard">
+    <div class="card">
       <div style="font-weight:700;margin-bottom:8px;">🎩 Hat (equipped: <span id="equippedHatLabel">None</span>)</div>
-      <div class="emoji-picker" id="hatSelector"></div>
+      <div class="emoji-row" id="hatSelector"></div>
     </div>
-    <div class="card" id="accessoryEquipCard">
+    <div class="card">
       <div style="font-weight:700;margin-bottom:8px;">💎 Accessory (equipped: <span id="equippedAccLabel">None</span>)</div>
-      <div class="emoji-picker" id="accSelector"></div>
+      <div class="emoji-row" id="accSelector"></div>
     </div>
   </div>
 
-  <!-- Profile Page -->
+  <!-- PROFILE -->
   <div class="page" id="profilePage">
     <div class="card profile-header">
       <div class="avatar-display" id="profileAvatar">😊</div>
@@ -241,7 +310,6 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== DATA ====================
 const SHOP_ITEMS = {
   hats: [
     { id: 'hat1', name: 'Party Hat', emoji: '🎉', price: 10 },
@@ -252,12 +320,12 @@ const SHOP_ITEMS = {
     { id: 'hat6', name: 'Top Hat', emoji: '🎩', price: 35 },
   ],
   outfits: [
-    { id: 'out1', name: 'Princess Dress', emoji: '👸', price: 25 },
-    { id: 'out2', name: 'Superhero Cape', emoji: '🦸', price: 30 },
-    { id: 'out3', name: 'Astronaut Suit', emoji: '👨‍🚀', price: 40 },
-    { id: 'out4', name: 'Chef Outfit', emoji: '👨‍🍳', price: 20 },
-    { id: 'out5', name: 'Ninja Outfit', emoji: '🥷', price: 35 },
-    { id: 'out6', name: 'Fairy Costume', emoji: '🧚', price: 45 },
+    { id: 'out1', name: 'Princess', emoji: '👸', price: 25 },
+    { id: 'out2', name: 'Superhero', emoji: '🦸', price: 30 },
+    { id: 'out3', name: 'Astronaut', emoji: '👨‍🚀', price: 40 },
+    { id: 'out4', name: 'Chef', emoji: '👨‍🍳', price: 20 },
+    { id: 'out5', name: 'Ninja', emoji: '🥷', price: 35 },
+    { id: 'out6', name: 'Fairy', emoji: '🧚', price: 45 },
   ],
   accessories: [
     { id: 'acc1', name: 'Sunglasses', emoji: '😎', price: 15 },
@@ -265,7 +333,7 @@ const SHOP_ITEMS = {
     { id: 'acc3', name: 'Sparkles', emoji: '✨', price: 10 },
     { id: 'acc4', name: 'Heart Eyes', emoji: '😍', price: 12 },
     { id: 'acc5', name: 'Star Wand', emoji: '⭐', price: 18 },
-    { id: 'acc6', name: 'Unicorn Horn', emoji: '🦄', price: 30 },
+    { id: 'acc6', name: 'Unicorn', emoji: '🦄', price: 30 },
   ],
   backgrounds: [
     { id: 'bg1', name: 'Rainbow Sky', emoji: '🌈', price: 30 },
@@ -276,13 +344,14 @@ const SHOP_ITEMS = {
     { id: 'bg6', name: 'Castle', emoji: '🏰', price: 50 },
   ]
 };
-
 const FACES = ['😊','😄','😁','🥰','😎','🤩','😜','🤗','😇','🥳','😏','🤓'];
 
 let currentUser = null;
 let currentShopTab = 'hats';
+let pendingMedia = null; // {type, dataUrl}
+let pendingStickers = [];
+let textStyles = { bold: false, italic: false, big: false, color: '#1e1b4b' };
 
-// ==================== STORAGE ====================
 function getUsers() { return JSON.parse(localStorage.getItem('sgk_users') || '{}'); }
 function saveUsers(u) { localStorage.setItem('sgk_users', JSON.stringify(u)); }
 function getPosts() { return JSON.parse(localStorage.getItem('sgk_posts') || '[]'); }
@@ -290,11 +359,10 @@ function savePosts(p) { localStorage.setItem('sgk_posts', JSON.stringify(p)); }
 function getCurrentUser() { return JSON.parse(localStorage.getItem('sgk_current') || 'null'); }
 function saveCurrentUser(u) { localStorage.setItem('sgk_current', JSON.stringify(u)); currentUser = u; }
 
-// ==================== AUTH ====================
 let authMode = 'login';
 function switchAuthTab(mode) {
   authMode = mode;
-  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (mode === 'login')));
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0)===(mode==='login')));
   document.getElementById('authBtn').textContent = mode === 'login' ? 'Log In' : 'Sign Up';
   document.getElementById('authError').textContent = '';
 }
@@ -303,15 +371,15 @@ function handleAuth() {
   const username = document.getElementById('authUsername').value.trim();
   const password = document.getElementById('authPassword').value;
   const errEl = document.getElementById('authError');
-  if (!username || !password) { errEl.textContent = 'Please fill in both fields!'; return; }
+  if (!username || !password) { errEl.textContent = 'Fill in both fields!'; return; }
   const users = getUsers();
   if (authMode === 'signup') {
-    if (users[username]) { errEl.textContent = 'Username already taken!'; return; }
-    if (username.length < 3) { errEl.textContent = 'Username must be at least 3 characters!'; return; }
-    users[username] = { username, password, prea: 50, face: '😊', hat: null, accessory: null, background: null, ownedItems: [], totalLikes: 0, preaEarned: 50 };
+    if (users[username]) { errEl.textContent = 'Username taken!'; return; }
+    if (username.length < 3) { errEl.textContent = 'Username needs 3+ characters!'; return; }
+    users[username] = { username, password, prea: 50, face: '😊', hat: null, accessory: null, background: null, ownedItems: [], preaEarned: 50 };
     saveUsers(users);
     saveCurrentUser(users[username]);
-    showToast('Welcome to StarGemKids! You got 50 💎 Prea to start! 🎉');
+    showToast('Welcome! You got 50 💎 Prea to start! 🎉');
   } else {
     if (!users[username] || users[username].password !== password) { errEl.textContent = 'Wrong username or password!'; return; }
     saveCurrentUser(users[username]);
@@ -328,7 +396,6 @@ function logout() {
   document.getElementById('authPassword').value = '';
 }
 
-// ==================== APP START ====================
 function startApp() {
   currentUser = getCurrentUser();
   if (!currentUser) return;
@@ -340,31 +407,81 @@ function startApp() {
   updateProfileAvatar();
 }
 
-// ==================== PREA ====================
-function addPrea(amount, label) {
+function addPrea(amount) {
   const users = getUsers();
   users[currentUser.username].prea += amount;
   users[currentUser.username].preaEarned = (users[currentUser.username].preaEarned || 0) + Math.max(0, amount);
   saveUsers(users);
   saveCurrentUser(users[currentUser.username]);
   updatePreaDisplay();
-  showToast(`+${amount} 💎 Prea ${label || ''}!`);
+  showToast(`+${amount} 💎 Prea!`);
   spawnSparkles();
 }
 
 function updatePreaDisplay() {
-  const balance = currentUser.prea;
-  document.getElementById('preaDisplay').textContent = `💎 ${balance} Prea`;
-  document.getElementById('profilePrea').textContent = `💎 ${balance} Prea`;
+  document.getElementById('preaDisplay').textContent = `💎 ${currentUser.prea} Prea`;
+  document.getElementById('profilePrea').textContent = `💎 ${currentUser.prea} Prea`;
   document.getElementById('statPrea').textContent = currentUser.preaEarned || 0;
 }
 
-// ==================== POSTS ====================
-function addEmoji(e) { document.getElementById('postInput').value += e; document.getElementById('postInput').focus(); }
+// Media handling
+function handleMedia(event, type) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { showToast('File too big! Max 10MB'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingMedia = { type, dataUrl: e.target.result };
+    const wrap = document.getElementById('mediaPreviewWrap');
+    if (type === 'image') {
+      wrap.innerHTML = `<div class="media-preview"><img src="${e.target.result}"><button class="remove-media" onclick="removeMedia()">✕</button></div>`;
+    } else {
+      wrap.innerHTML = `<div class="media-preview"><video src="${e.target.result}" controls><source src="${e.target.result}"></video><button class="remove-media" onclick="removeMedia()">✕</button></div>`;
+    }
+  };
+  reader.readAsDataURL(file);
+}
 
+function removeMedia() {
+  pendingMedia = null;
+  document.getElementById('mediaPreviewWrap').innerHTML = '';
+  document.getElementById('photoInput').value = '';
+  document.getElementById('videoInput').value = '';
+}
+
+// Stickers
+function addSticker(s) {
+  pendingStickers.push(s);
+  document.getElementById('selectedStickers').textContent = pendingStickers.join(' ');
+  document.getElementById('stickerList').textContent = pendingStickers.join(' ') || 'none';
+}
+
+// Text styling
+function toggleStyle(style) {
+  textStyles[style] = !textStyles[style];
+  document.getElementById(style + 'Btn').classList.toggle('active', textStyles[style]);
+}
+
+function setColor(color, el) {
+  textStyles.color = color;
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function togglePanel(id) {
+  const panels = ['emojiPanel','stickerPanel','textPanel'];
+  panels.forEach(p => {
+    if (p === id) document.getElementById(p).classList.toggle('open');
+    else document.getElementById(p).classList.remove('open');
+  });
+}
+
+function addEmoji(e) { document.getElementById('postInput').value += e; }
+
+// Submitting a post
 function submitPost() {
   const text = document.getElementById('postInput').value.trim();
-  if (!text) { showToast('Write something first! ✍️'); return; }
+  if (!text && !pendingMedia) { showToast('Add some text or a photo/video!'); return; }
   const posts = getPosts();
   const post = {
     id: Date.now().toString(),
@@ -373,22 +490,41 @@ function submitPost() {
     time: new Date().toISOString(),
     likes: [],
     comments: [],
-    avatar: buildAvatarEmoji()
+    avatar: currentUser.face || '😊',
+    media: pendingMedia || null,
+    stickers: [...pendingStickers],
+    textStyle: { ...textStyles }
   };
   posts.unshift(post);
   savePosts(posts);
+  // reset
   document.getElementById('postInput').value = '';
-  addPrea(5, 'for posting');
+  pendingMedia = null;
+  pendingStickers = [];
+  textStyles = { bold: false, italic: false, big: false, color: '#1e1b4b' };
+  document.getElementById('mediaPreviewWrap').innerHTML = '';
+  document.getElementById('selectedStickers').textContent = '';
+  document.getElementById('stickerList').textContent = 'none';
+  document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('open'));
+  document.getElementById('photoInput').value = '';
+  document.getElementById('videoInput').value = '';
+  addPrea(5);
   renderFeed();
-  // update profile stats
   const users = getUsers();
   users[currentUser.username].postCount = (users[currentUser.username].postCount || 0) + 1;
   saveUsers(users);
   saveCurrentUser(users[currentUser.username]);
 }
 
-function buildAvatarEmoji() {
-  return currentUser.face || '😊';
+function applyTextStyle(text, style) {
+  if (!text) return '';
+  let s = `<span style="color:${style.color || '#1e1b4b'};`;
+  if (style.bold) s += 'font-weight:900;';
+  if (style.italic) s += 'font-style:italic;';
+  if (style.big) s += 'font-size:20px;';
+  s += `">${escHtml(text)}</span>`;
+  return s;
 }
 
 function timeAgo(iso) {
@@ -404,49 +540,47 @@ function timeAgo(iso) {
 function renderFeed() {
   const posts = getPosts();
   const container = document.getElementById('feedContainer');
+  document.getElementById('composeAvatar').textContent = currentUser.face || '😊';
   if (posts.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><div>No posts yet! Be the first to post!</div></div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><div>No posts yet! Be the first!</div></div>';
     return;
   }
-  container.innerHTML = posts.map(post => `
-    <div class="card fade-in" id="post-${post.id}">
-      <div class="post-header">
-        <div class="post-avatar">${post.avatar || '😊'}</div>
-        <div class="post-meta">
-          <div class="post-username">${escHtml(post.username)}</div>
-          <div class="post-time">${timeAgo(post.time)}</div>
-        </div>
-      </div>
-      <div class="post-content">${escHtml(post.content)}</div>
-      <div class="post-actions">
-        <button class="action-btn ${post.likes.includes(currentUser.username) ? 'liked' : ''}" onclick="likePost('${post.id}')">
-          ❤️ ${post.likes.length} Like${post.likes.length !== 1 ? 's' : ''}
-        </button>
-        <button class="action-btn" onclick="toggleComments('${post.id}')">
-          💬 ${post.comments.length} Comment${post.comments.length !== 1 ? 's' : ''}
-        </button>
-      </div>
-      <div class="comments-section" id="comments-${post.id}" style="display:none;">
-        ${post.comments.map(c => `
-          <div class="comment">
-            <div class="comment-avatar">${c.avatar || '😊'}</div>
-            <div class="comment-bubble"><div class="comment-user">${escHtml(c.username)}</div>${escHtml(c.text)}</div>
+  container.innerHTML = posts.map(post => {
+    const ts = post.textStyle || {};
+    const mediaHtml = post.media ? (
+      post.media.type === 'image'
+        ? `<div class="post-media"><img src="${post.media.dataUrl}" loading="lazy"></div>`
+        : `<div class="post-media"><video controls preload="none"><source src="${post.media.dataUrl}"></video></div>`
+    ) : '';
+    const stickersHtml = post.stickers && post.stickers.length ? `<div class="post-stickers">${post.stickers.join(' ')}</div>` : '';
+    const contentHtml = post.content ? `<div class="post-content">${applyTextStyle(post.content, ts)}</div>` : '';
+    const liked = post.likes.includes(currentUser.username);
+    return `
+      <div class="card" id="post-${post.id}">
+        <div class="post-header">
+          <div class="post-avatar">${post.avatar || '😊'}</div>
+          <div class="post-meta">
+            <div class="post-username">${escHtml(post.username)}</div>
+            <div class="post-time">${timeAgo(post.time)}</div>
           </div>
-        `).join('')}
-        <div class="comment-input-row">
-          <input class="comment-input" id="cinput-${post.id}" placeholder="Add a comment..." onkeydown="if(event.key==='Enter')submitComment('${post.id}')">
-          <button class="btn-comment" onclick="submitComment('${post.id}')">Post</button>
         </div>
-      </div>
-    </div>
-  `).join('');
-  // update compose avatar
-  document.getElementById('composeAvatar').textContent = buildAvatarEmoji();
-  // update stats
+        ${contentHtml}${stickersHtml}${mediaHtml}
+        <div class="post-actions">
+          <button class="action-btn ${liked ? 'liked' : ''}" onclick="likePost('${post.id}')">❤️ ${post.likes.length}</button>
+          <button class="action-btn" onclick="toggleComments('${post.id}')">💬 ${post.comments.length}</button>
+        </div>
+        <div class="comments-section" id="comments-${post.id}" style="display:none;">
+          ${post.comments.map(c => `<div class="comment"><div class="comment-avatar">${c.avatar||'😊'}</div><div class="comment-bubble"><div class="comment-user">${escHtml(c.username)}</div>${escHtml(c.text)}</div></div>`).join('')}
+          <div class="comment-input-row">
+            <input class="comment-input" id="cinput-${post.id}" placeholder="Comment..." onkeydown="if(event.key==='Enter')submitComment('${post.id}')">
+            <button class="btn-comment" onclick="submitComment('${post.id}')">Post</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
   const myPosts = posts.filter(p => p.username === currentUser.username);
-  const myLikes = myPosts.reduce((sum, p) => sum + p.likes.length, 0);
   document.getElementById('statPosts').textContent = myPosts.length;
-  document.getElementById('statLikes').textContent = myLikes;
+  document.getElementById('statLikes').textContent = myPosts.reduce((s,p)=>s+p.likes.length,0);
 }
 
 function likePost(postId) {
@@ -456,19 +590,11 @@ function likePost(postId) {
   const idx = post.likes.indexOf(currentUser.username);
   if (idx === -1) {
     post.likes.push(currentUser.username);
-    // reward post owner
     if (post.username !== currentUser.username) {
       const users = getUsers();
-      if (users[post.username]) {
-        users[post.username].prea += 1;
-        users[post.username].preaEarned = (users[post.username].preaEarned || 0) + 1;
-        saveUsers(users);
-        if (post.username === currentUser.username) saveCurrentUser(users[currentUser.username]);
-      }
+      if (users[post.username]) { users[post.username].prea += 1; users[post.username].preaEarned = (users[post.username].preaEarned||0)+1; saveUsers(users); }
     }
-  } else {
-    post.likes.splice(idx, 1);
-  }
+  } else { post.likes.splice(idx,1); }
   savePosts(posts);
   renderFeed();
 }
@@ -485,48 +611,42 @@ function submitComment(postId) {
   const posts = getPosts();
   const post = posts.find(p => p.id === postId);
   if (!post) return;
-  post.comments.push({ username: currentUser.username, text, avatar: buildAvatarEmoji(), time: new Date().toISOString() });
+  post.comments.push({ username: currentUser.username, text, avatar: currentUser.face||'😊', time: new Date().toISOString() });
   savePosts(posts);
   input.value = '';
   renderFeed();
   setTimeout(() => toggleComments(postId), 10);
 }
 
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ==================== SHOP ====================
-function switchShopTab(tab) {
+// Shop
+function switchShopTab(tab, el) {
   currentShopTab = tab;
   document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   renderShop();
 }
 
 function renderShop() {
   const items = SHOP_ITEMS[currentShopTab];
-  const grid = document.getElementById('shopGrid');
-  grid.innerHTML = items.map(item => {
-    const owned = currentUser.ownedItems && currentUser.ownedItems.includes(item.id);
+  document.getElementById('shopGrid').innerHTML = items.map(item => {
+    const owned = (currentUser.ownedItems||[]).includes(item.id);
     const equipped = currentUser.hat === item.id || currentUser.accessory === item.id;
-    return `
-      <div class="shop-item ${equipped ? 'equipped' : owned ? 'owned' : ''}">
-        <div class="shop-emoji">${item.emoji}</div>
-        <div class="shop-name">${item.name}</div>
-        ${equipped ? '<div class="shop-owned">✅ Equipped</div>' :
-          owned ? '<div class="shop-owned">✅ Owned</div>' :
-          `<div class="shop-price">💎 ${item.price} Prea</div>`}
-        ${!owned && !equipped ? `<button class="btn-buy" onclick="buyItem('${item.id}','${currentShopTab}')">Buy</button>` : ''}
-        ${owned && !equipped && (currentShopTab === 'hats' || currentShopTab === 'accessories') ? `<button class="btn-equip" onclick="equipItem('${item.id}','${currentShopTab}')">Equip</button>` : ''}
-      </div>
-    `;
+    return `<div class="shop-item ${equipped?'equipped':owned?'owned':''}">
+      <div class="shop-emoji">${item.emoji}</div>
+      <div class="shop-name">${item.name}</div>
+      ${equipped ? '<div class="shop-owned">✅ Equipped</div>' : owned ? '<div class="shop-owned">✅ Owned</div>' : `<div class="shop-price">💎 ${item.price} Prea</div>`}
+      ${!owned&&!equipped ? `<button class="btn-buy" onclick="buyItem('${item.id}','${currentShopTab}')">Buy</button>` : ''}
+      ${owned&&!equipped&&(currentShopTab==='hats'||currentShopTab==='accessories') ? `<button class="btn-equip" onclick="equipItem('${item.id}','${currentShopTab}')">Equip</button>` : ''}
+    </div>`;
   }).join('');
 }
 
 function buyItem(itemId, category) {
-  const allItems = Object.values(SHOP_ITEMS).flat();
-  const item = allItems.find(i => i.id === itemId);
+  const item = Object.values(SHOP_ITEMS).flat().find(i => i.id === itemId);
   if (!item) return;
-  if (currentUser.prea < item.price) { showToast(`Not enough Prea! Need ${item.price} 💎`); return; }
+  if (currentUser.prea < item.price) { showToast(`Need ${item.price} 💎 Prea!`); return; }
   const users = getUsers();
   users[currentUser.username].prea -= item.price;
   users[currentUser.username].ownedItems = users[currentUser.username].ownedItems || [];
@@ -551,109 +671,71 @@ function equipItem(itemId, category) {
   showToast('Equipped! ✨');
 }
 
-// ==================== AVATAR ====================
+// Avatar
 function renderAvatarEditor() {
-  // Face selector
-  const faceEl = document.getElementById('faceSelector');
-  faceEl.innerHTML = FACES.map(f => `
-    <button class="emoji-btn" onclick="setFace('${f}')" style="${currentUser.face === f ? 'background:#e9d5ff;' : ''}">${f}</button>
-  `).join('');
-
-  // Hat selector
-  const hatEl = document.getElementById('hatSelector');
-  const ownedHats = (currentUser.ownedItems || []).filter(id => SHOP_ITEMS.hats.find(h => h.id === id));
-  if (ownedHats.length === 0) {
-    hatEl.innerHTML = '<span style="font-size:13px;color:var(--muted)">Buy hats in the shop! 🛍️</span>';
-  } else {
-    hatEl.innerHTML = ownedHats.map(id => {
-      const hat = SHOP_ITEMS.hats.find(h => h.id === id);
-      return `<button class="emoji-btn" onclick="equipItem('${id}','hats')" style="${currentUser.hat === id ? 'background:#e9d5ff;' : ''}">${hat.emoji}</button>`;
-    }).join('') + `<button class="emoji-btn" onclick="unequipHat()" title="Remove hat">❌</button>`;
-  }
-  document.getElementById('equippedHatLabel').textContent = currentUser.hat ? (SHOP_ITEMS.hats.find(h => h.id === currentUser.hat) || {}).emoji || 'None' : 'None';
-
-  // Accessory selector
-  const accEl = document.getElementById('accSelector');
-  const ownedAccs = (currentUser.ownedItems || []).filter(id => SHOP_ITEMS.accessories.find(a => a.id === id));
-  if (ownedAccs.length === 0) {
-    accEl.innerHTML = '<span style="font-size:13px;color:var(--muted)">Buy accessories in the shop! 🛍️</span>';
-  } else {
-    accEl.innerHTML = ownedAccs.map(id => {
-      const acc = SHOP_ITEMS.accessories.find(a => a.id === id);
-      return `<button class="emoji-btn" onclick="equipItem('${id}','accessories')" style="${currentUser.accessory === id ? 'background:#e9d5ff;' : ''}">${acc.emoji}</button>`;
-    }).join('') + `<button class="emoji-btn" onclick="unequipAcc()" title="Remove accessory">❌</button>`;
-  }
-  document.getElementById('equippedAccLabel').textContent = currentUser.accessory ? (SHOP_ITEMS.accessories.find(a => a.id === currentUser.accessory) || {}).emoji || 'None' : 'None';
-
+  document.getElementById('faceSelector').innerHTML = FACES.map(f =>
+    `<button class="emoji-btn" onclick="setFace('${f}')" style="${currentUser.face===f?'background:#e9d5ff;':''}">${f}</button>`
+  ).join('');
+  const ownedHats = (currentUser.ownedItems||[]).filter(id => SHOP_ITEMS.hats.find(h=>h.id===id));
+  document.getElementById('hatSelector').innerHTML = ownedHats.length === 0
+    ? '<span style="font-size:13px;color:var(--muted)">Buy hats in the shop!</span>'
+    : ownedHats.map(id => { const h = SHOP_ITEMS.hats.find(h=>h.id===id); return `<button class="emoji-btn" onclick="equipItem('${id}','hats')" style="${currentUser.hat===id?'background:#e9d5ff;':''}">${h.emoji}</button>`; }).join('') +
+      `<button class="emoji-btn" onclick="unequipItem('hat')" title="Remove">❌</button>`;
+  const ownedAccs = (currentUser.ownedItems||[]).filter(id => SHOP_ITEMS.accessories.find(a=>a.id===id));
+  document.getElementById('accSelector').innerHTML = ownedAccs.length === 0
+    ? '<span style="font-size:13px;color:var(--muted)">Buy accessories in the shop!</span>'
+    : ownedAccs.map(id => { const a = SHOP_ITEMS.accessories.find(a=>a.id===id); return `<button class="emoji-btn" onclick="equipItem('${id}','accessories')" style="${currentUser.accessory===id?'background:#e9d5ff;':''}">${a.emoji}</button>`; }).join('') +
+      `<button class="emoji-btn" onclick="unequipItem('acc')" title="Remove">❌</button>`;
+  const hatItem = currentUser.hat ? SHOP_ITEMS.hats.find(h=>h.id===currentUser.hat) : null;
+  const accItem = currentUser.accessory ? SHOP_ITEMS.accessories.find(a=>a.id===currentUser.accessory) : null;
+  document.getElementById('equippedHatLabel').textContent = hatItem ? hatItem.emoji : 'None';
+  document.getElementById('equippedAccLabel').textContent = accItem ? accItem.emoji : 'None';
   updateAvatarPreview();
 }
 
-function setFace(face) {
+function buildAvatarStr() {
+  const face = currentUser.face || '😊';
+  const hatItem = currentUser.hat ? SHOP_ITEMS.hats.find(h=>h.id===currentUser.hat) : null;
+  const accItem = currentUser.accessory ? SHOP_ITEMS.accessories.find(a=>a.id===currentUser.accessory) : null;
+  return (hatItem ? hatItem.emoji : '') + face + (accItem ? accItem.emoji : '');
+}
+
+function updateAvatarPreview() { document.getElementById('avatarPreview').textContent = buildAvatarStr(); }
+function updateProfileAvatar() {
+  document.getElementById('profileAvatar').textContent = buildAvatarStr();
+  document.getElementById('profileName').textContent = currentUser.username;
+}
+
+function setFace(f) {
   const users = getUsers();
-  users[currentUser.username].face = face;
+  users[currentUser.username].face = f;
   saveUsers(users);
   saveCurrentUser(users[currentUser.username]);
   renderAvatarEditor();
   updateProfileAvatar();
 }
 
-function unequipHat() {
+function unequipItem(type) {
   const users = getUsers();
-  users[currentUser.username].hat = null;
+  if (type === 'hat') users[currentUser.username].hat = null;
+  if (type === 'acc') users[currentUser.username].accessory = null;
   saveUsers(users);
   saveCurrentUser(users[currentUser.username]);
   renderAvatarEditor();
 }
 
-function unequipAcc() {
-  const users = getUsers();
-  users[currentUser.username].accessory = null;
-  saveUsers(users);
-  saveCurrentUser(users[currentUser.username]);
-  renderAvatarEditor();
-}
-
-function updateAvatarPreview() {
-  const face = currentUser.face || '😊';
-  const hatItem = currentUser.hat ? SHOP_ITEMS.hats.find(h => h.id === currentUser.hat) : null;
-  const accItem = currentUser.accessory ? SHOP_ITEMS.accessories.find(a => a.id === currentUser.accessory) : null;
-  let display = face;
-  if (hatItem) display = hatItem.emoji + display;
-  if (accItem) display = display + accItem.emoji;
-  document.getElementById('avatarPreview').textContent = display;
-  document.getElementById('composeAvatar').textContent = face;
-}
-
-function updateProfileAvatar() {
-  const face = currentUser.face || '😊';
-  const hatItem = currentUser.hat ? SHOP_ITEMS.hats.find(h => h.id === currentUser.hat) : null;
-  const accItem = currentUser.accessory ? SHOP_ITEMS.accessories.find(a => a.id === currentUser.accessory) : null;
-  let display = face;
-  if (hatItem) display = hatItem.emoji + display;
-  if (accItem) display = display + accItem.emoji;
-  document.getElementById('profileAvatar').textContent = display;
-  document.getElementById('profileName').textContent = currentUser.username;
-}
-
-// ==================== PROFILE ====================
 function renderProfile() {
   updateProfileAvatar();
   updatePreaDisplay();
   const posts = getPosts().filter(p => p.username === currentUser.username);
+  document.getElementById('statPosts').textContent = posts.length;
+  document.getElementById('statLikes').textContent = posts.reduce((s,p)=>s+p.likes.length,0);
   const container = document.getElementById('myPostsContainer');
-  if (posts.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div>No posts yet!</div></div>';
-    return;
-  }
-  container.innerHTML = posts.map(post => `
-    <div class="card">
-      <div class="post-content">${escHtml(post.content)}</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:6px;">❤️ ${post.likes.length} likes · 💬 ${post.comments.length} comments · ${timeAgo(post.time)}</div>
-    </div>
-  `).join('');
+  container.innerHTML = posts.length === 0
+    ? '<div class="empty-state"><div class="empty-icon">📝</div><div>No posts yet!</div></div>'
+    : posts.map(p => `<div class="card"><div class="post-content">${p.content ? escHtml(p.content) : ''} ${p.stickers ? p.stickers.join('') : ''}</div>${p.media?`<div style="font-size:12px;color:var(--muted);">${p.media.type==='image'?'📸 Photo':'🎬 Video'} attached</div>`:''}<div style="font-size:12px;color:var(--muted);margin-top:4px;">❤️ ${p.likes.length} · 💬 ${p.comments.length} · ${timeAgo(p.time)}</div></div>`).join('');
 }
 
-// ==================== NAV ====================
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -665,7 +747,6 @@ function showPage(page) {
   if (page === 'feed') renderFeed();
 }
 
-// ==================== EFFECTS ====================
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -679,20 +760,15 @@ function spawnSparkles() {
     setTimeout(() => {
       const s = document.createElement('div');
       s.className = 'sparkle';
-      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      s.style.left = Math.random() * 80 + 10 + 'vw';
-      s.style.top = Math.random() * 50 + 20 + 'vh';
+      s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      s.style.cssText = `left:${Math.random()*80+10}vw;top:${Math.random()*50+20}vh`;
       document.body.appendChild(s);
       setTimeout(() => s.remove(), 800);
     }, i * 100);
   }
 }
 
-// ==================== INIT ====================
-window.onload = () => {
-  const user = getCurrentUser();
-  if (user) { startApp(); }
-};
+window.onload = () => { const u = getCurrentUser(); if (u) startApp(); };
 </script>
 </body>
 </html>
