@@ -299,9 +299,27 @@
     </div>
   </div>
 
+  <!-- FRIENDS PAGE -->
+  <div class="page" id="friendsPage">
+    <div class="section-title">👯 Friends</div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:8px;">🔍 Find a friend by username</div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="friendSearch" class="form-input" style="margin:0;flex:1;" placeholder="Enter username...">
+        <button class="btn-post" onclick="searchFriend()">Search</button>
+      </div>
+      <div id="friendSearchResult" style="margin-top:10px;"></div>
+    </div>
+    <div class="section-title" style="margin-top:4px;">My Friends <span id="friendCount" style="color:var(--muted);font-size:14px;"></span></div>
+    <div id="friendsList"></div>
+    <div class="section-title" style="margin-top:4px;">Friend Requests <span id="requestCount" style="color:var(--pink);font-size:14px;"></span></div>
+    <div id="requestsList"></div>
+  </div>
+
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('feed')" id="navFeed">🏠<span>Home</span></button>
     <button class="nav-btn" onclick="showPage('shop')" id="navShop">🛍️<span>Shop</span></button>
+    <button class="nav-btn" onclick="showPage('friends')" id="navFriends">👯<span>Friends</span></button>
     <button class="nav-btn" onclick="showPage('avatar')" id="navAvatar">🎨<span>Avatar</span></button>
     <button class="nav-btn" onclick="showPage('profile')" id="navProfile">👤<span>Profile</span></button>
   </nav>
@@ -745,6 +763,7 @@ function showPage(page) {
   if (page === 'avatar') renderAvatarEditor();
   if (page === 'profile') renderProfile();
   if (page === 'feed') renderFeed();
+  if (page === 'friends') renderFriends();
 }
 
 function showToast(msg) {
@@ -766,6 +785,129 @@ function spawnSparkles() {
       setTimeout(() => s.remove(), 800);
     }, i * 100);
   }
+}
+
+// ==================== FRIENDS ====================
+function getFriendData(username) {
+  const users = getUsers();
+  const u = users[username];
+  if (!u) return { friends: [], requests: [], sentRequests: [] };
+  return { friends: u.friends || [], requests: u.requests || [], sentRequests: u.sentRequests || [] };
+}
+
+function searchFriend() {
+  const query = document.getElementById('friendSearch').value.trim().toLowerCase();
+  const result = document.getElementById('friendSearchResult');
+  if (!query) { result.innerHTML = ''; return; }
+  const users = getUsers();
+  const found = Object.keys(users).filter(u => u.toLowerCase().includes(query) && u !== currentUser.username);
+  if (found.length === 0) { result.innerHTML = '<div style="color:var(--muted);font-size:13px;">No users found.</div>'; return; }
+  result.innerHTML = found.map(u => {
+    const fd = getFriendData(currentUser.username);
+    const isFriend = fd.friends.includes(u);
+    const sentReq = fd.sentRequests && fd.sentRequests.includes(u);
+    const theirData = getFriendData(u);
+    const theyRequested = theirData.sentRequests && theirData.sentRequests.includes(currentUser.username);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:28px;">${users[u].face||'😊'}</div>
+      <div style="flex:1;font-weight:700;">${escHtml(u)}</div>
+      ${isFriend ? '<span style="color:#10b981;font-weight:700;">✅ Friends</span>' :
+        theyRequested ? `<button class="btn-comment" onclick="acceptRequest('${u}')">Accept ✅</button>` :
+        sentReq ? '<span style="color:var(--muted);font-size:13px;">Request sent</span>' :
+        `<button class="btn-comment" onclick="sendFriendRequest('${u}')">Add Friend 👋</button>`}
+    </div>`;
+  }).join('');
+}
+
+function sendFriendRequest(toUser) {
+  const users = getUsers();
+  if (!users[toUser]) return;
+  // add to their requests
+  users[toUser].requests = users[toUser].requests || [];
+  if (!users[toUser].requests.includes(currentUser.username)) users[toUser].requests.push(currentUser.username);
+  // add to my sentRequests
+  users[currentUser.username].sentRequests = users[currentUser.username].sentRequests || [];
+  if (!users[currentUser.username].sentRequests.includes(toUser)) users[currentUser.username].sentRequests.push(toUser);
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  showToast(`Friend request sent to ${toUser}! 👋`);
+  searchFriend();
+  renderFriends();
+}
+
+function acceptRequest(fromUser) {
+  const users = getUsers();
+  // add each other as friends
+  users[currentUser.username].friends = users[currentUser.username].friends || [];
+  users[fromUser].friends = users[fromUser].friends || [];
+  if (!users[currentUser.username].friends.includes(fromUser)) users[currentUser.username].friends.push(fromUser);
+  if (!users[fromUser].friends.includes(currentUser.username)) users[fromUser].friends.push(currentUser.username);
+  // remove from requests
+  users[currentUser.username].requests = (users[currentUser.username].requests||[]).filter(r=>r!==fromUser);
+  users[fromUser].sentRequests = (users[fromUser].sentRequests||[]).filter(r=>r!==currentUser.username);
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  addPrea(2);
+  showToast(`You and ${fromUser} are now friends! 🎉`);
+  renderFriends();
+  searchFriend();
+}
+
+function declineRequest(fromUser) {
+  const users = getUsers();
+  users[currentUser.username].requests = (users[currentUser.username].requests||[]).filter(r=>r!==fromUser);
+  users[fromUser].sentRequests = (users[fromUser].sentRequests||[]).filter(r=>r!==currentUser.username);
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  renderFriends();
+}
+
+function removeFriend(username) {
+  const users = getUsers();
+  users[currentUser.username].friends = (users[currentUser.username].friends||[]).filter(f=>f!==username);
+  users[username].friends = (users[username].friends||[]).filter(f=>f!==currentUser.username);
+  saveUsers(users);
+  saveCurrentUser(users[currentUser.username]);
+  renderFriends();
+  showToast('Friend removed.');
+}
+
+function renderFriends() {
+  const users = getUsers();
+  const fd = getFriendData(currentUser.username);
+  // Friends list
+  document.getElementById('friendCount').textContent = fd.friends.length ? `(${fd.friends.length})` : '';
+  const fl = document.getElementById('friendsList');
+  fl.innerHTML = fd.friends.length === 0
+    ? '<div class="empty-state" style="padding:20px;"><div class="empty-icon">👋</div><div>No friends yet! Search for someone above.</div></div>'
+    : fd.friends.map(f => {
+        const u = users[f];
+        if (!u) return '';
+        return `<div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+          <div style="font-size:32px;">${u.face||'😊'}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">${escHtml(f)}</div>
+            <div style="font-size:12px;color:var(--muted);">💎 ${u.prea||0} Prea</div>
+          </div>
+          <button style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--muted);" onclick="removeFriend('${f}')">Remove</button>
+        </div>`;
+      }).join('');
+  // Requests
+  const reqs = fd.requests || [];
+  document.getElementById('requestCount').textContent = reqs.length ? `(${reqs.length} new!)` : '';
+  const rl = document.getElementById('requestsList');
+  rl.innerHTML = reqs.length === 0
+    ? '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No pending requests.</div>'
+    : reqs.map(f => {
+        const u = users[f];
+        if (!u) return '';
+        return `<div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+          <div style="font-size:32px;">${u.face||'😊'}</div>
+          <div style="flex:1;font-weight:700;">${escHtml(f)}</div>
+          <button class="btn-comment" onclick="acceptRequest('${f}')">Accept ✅</button>
+          <button style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;" onclick="declineRequest('${f}')">✕</button>
+        </div>`;
+      }).join('');
 }
 
 window.onload = () => { const u = getCurrentUser(); if (u) startApp(); };
