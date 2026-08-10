@@ -152,7 +152,8 @@
       <div id="videoLinkPreview"></div>
       <div class="media-btns">
         <label class="media-btn">📸 Add Photo<input type="file" accept="image/*" id="photoInput" onchange="handleMedia(event,'image')"></label>
-        <label class="media-btn">🎬 Add Video<input type="file" accept="video/*" id="videoInput" onchange="handleMedia(event,'video')"></label>
+        <label class="media-btn" id="videoUploadBtn">🎬 Add Video<input type="file" accept="video/*" id="videoInput" onchange="handleMedia(event,'video')"></label>
+        <div id="videoUploadProgress" style="display:none;width:100%;background:#f3f4f6;border-radius:12px;padding:10px;margin-top:6px;font-size:13px;color:var(--purple);font-weight:600;text-align:center;">⏳ Uploading video...</div>
       </div>
       <div style="margin-top:10px;display:flex;gap:8px;">
         <input type="text" id="videoLinkInput" class="compose-input" style="min-height:unset;padding:8px 12px;font-size:13px;" placeholder="🔗 Paste YouTube or TikTok link...">
@@ -437,10 +438,43 @@ function compressImage(dataUrl, maxKB) {
     img.src = dataUrl;
   });
 }
+async function uploadVideoToStreamable(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  const prog = document.getElementById('videoUploadProgress');
+  prog.style.display='block'; prog.textContent='⏳ Uploading video... please wait!';
+  try {
+    const r = await fetch('https://api.streamable.com/upload', { method:'POST', body: formData });
+    const data = await r.json();
+    if (data.shortcode) {
+      prog.textContent='✅ Video uploaded!';
+      setTimeout(()=>{ prog.style.display='none'; },2000);
+      return `https://streamable.com/e/${data.shortcode}`;
+    } else {
+      prog.textContent='❌ Upload failed. Try a YouTube link instead.';
+      setTimeout(()=>{ prog.style.display='none'; },3000);
+      return null;
+    }
+  } catch(e) {
+    prog.textContent='❌ Upload failed. Check your internet!';
+    setTimeout(()=>{ prog.style.display='none'; },3000);
+    return null;
+  }
+}
 function handleMedia(event, type) {
   const file = event.target.files[0];
   if (!file) return;
-  if (type==='video') { showToast('Videos not supported — use a YouTube link instead! 🎬'); event.target.value=''; return; }
+  if (type==='video') {
+    if (file.size > 250*1024*1024) { showToast('Video too big! Max 250MB.'); event.target.value=''; return; }
+    uploadVideoToStreamable(file).then(url => {
+      if (!url) return;
+      pendingVideoLink = { type:'streamable', url };
+      const preview = document.getElementById('videoLinkPreview');
+      preview.innerHTML = `<div style="margin-top:8px;border-radius:12px;overflow:hidden;position:relative;"><iframe src="${url}" width="100%" height="200" frameborder="0" allowfullscreen style="border-radius:12px;"></iframe><button onclick="removeVideoLink()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;">✕</button></div>`;
+      showToast('Video ready to post! 🎬');
+    });
+    return;
+  }
   if (file.size > 10*1024*1024) { showToast('Photo too big! Please pick a smaller one.'); event.target.value=''; return; }
   const reader = new FileReader();
   reader.onload = async e => {
@@ -541,8 +575,11 @@ function renderFeed() {
     const mediaHtml = post.media ? (post.media.type==='image'
       ? `<div class="post-media"><img src="${post.media.dataUrl}" loading="lazy"></div>`
       : `<div class="post-media"><video controls preload="none"><source src="${post.media.dataUrl}"></video></div>`) : '';
-    const videoLinkHtml = post.videoLink ? (post.videoLink.type==='youtube'
-      ? `<div style="margin-bottom:10px;border-radius:12px;overflow:hidden;"><iframe width="100%" height="220" src="https://www.youtube.com/embed/${post.videoLink.id}" frameborder="0" allowfullscreen></iframe></div>`
+    const videoLinkHtml = post.videoLink ? (
+      post.videoLink.type==='youtube'
+        ? `<div style="margin-bottom:10px;border-radius:12px;overflow:hidden;"><iframe width="100%" height="220" src="https://www.youtube.com/embed/${post.videoLink.id}" frameborder="0" allowfullscreen></iframe></div>`
+      : post.videoLink.type==='streamable'
+        ? `<div style="margin-bottom:10px;border-radius:12px;overflow:hidden;"><iframe src="${escHtml(post.videoLink.url)}" width="100%" height="220" frameborder="0" allowfullscreen style="border-radius:12px;"></iframe></div>`
       : `<div style="margin-bottom:10px;background:#f3f4f6;border-radius:12px;padding:12px;">🎵 <a href="${escHtml(post.videoLink.url)}" target="_blank" style="color:var(--purple);font-weight:700;">Watch TikTok ↗</a></div>`) : '';
     const stickersHtml = post.stickers&&post.stickers.length ? `<div class="post-stickers">${post.stickers.join(' ')}</div>` : '';
     const contentHtml = post.content ? `<div class="post-content">${applyTextStyle(post.content,ts)}</div>` : '';
