@@ -304,12 +304,15 @@ async function saveDB() {
   if (saving) { savePending = true; return; }
   saving = true;
   try {
-    await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+    const payload = JSON.stringify(db);
+    if (payload.length > 900*1024) { showToast('\u26a0\ufe0f Post too large! Try without a photo.'); saving=false; return; }
+    const r = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
       method: 'PATCH',
       headers: { 'Authorization': `token ${GIST_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(db) } } })
+      body: JSON.stringify({ files: { [GIST_FILE]: { content: payload } } })
     });
-  } catch(e) { console.warn('saveDB failed', e); }
+    if (!r.ok) { showToast('\u26a0\ufe0f Could not save! Check your connection.'); }
+  } catch(e) { console.warn('saveDB failed', e); showToast('\u26a0\ufe0f Save failed — check your internet!'); }
   saving = false;
   if (savePending) { savePending = false; await saveDB(); }
 }
@@ -416,17 +419,35 @@ function updatePreaDisplay() {
 }
 
 // ======== MEDIA ========
+function compressImage(dataUrl, maxKB) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      const MAX = 800;
+      if (w > MAX || h > MAX) { if (w > h) { h = Math.round(h*MAX/w); w=MAX; } else { w=Math.round(w*MAX/h); h=MAX; } }
+      const canvas = document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      let q=0.7;
+      let out = canvas.toDataURL('image/jpeg',q);
+      while (out.length > maxKB*1024 && q > 0.2) { q-=0.1; out=canvas.toDataURL('image/jpeg',q); }
+      resolve(out);
+    };
+    img.src = dataUrl;
+  });
+}
 function handleMedia(event, type) {
   const file = event.target.files[0];
   if (!file) return;
-  if (file.size > 50*1024*1024) { showToast('File too big! Max 50MB'); return; }
+  if (type==='video') { showToast('Videos not supported — use a YouTube link instead! 🎬'); event.target.value=''; return; }
+  if (file.size > 10*1024*1024) { showToast('Photo too big! Please pick a smaller one.'); event.target.value=''; return; }
   const reader = new FileReader();
-  reader.onload = e => {
-    pendingMedia = { type, dataUrl: e.target.result };
+  reader.onload = async e => {
+    const compressed = await compressImage(e.target.result, 400);
+    pendingMedia = { type, dataUrl: compressed };
     const wrap = document.getElementById('mediaPreviewWrap');
-    wrap.innerHTML = type==='image'
-      ? `<div class="media-preview"><img src="${e.target.result}"><button class="remove-btn" onclick="removeMedia()">✕</button></div>`
-      : `<div class="media-preview"><video src="${e.target.result}" controls></video><button class="remove-btn" onclick="removeMedia()">✕</button></div>`;
+    wrap.innerHTML = `<div class="media-preview"><img src="${compressed}"><button class="remove-btn" onclick="removeMedia()">✕</button></div>`;
   };
   reader.readAsDataURL(file);
 }
