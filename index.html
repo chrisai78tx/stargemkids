@@ -724,13 +724,17 @@ async function searchFriend() {
 
 async function sendFriendRequest(toUser) {
   await loadDB();
-  db.users[toUser].requests=db.users[toUser].requests||[];
-  if (!db.users[toUser].requests.includes(currentUser.username)) db.users[toUser].requests.push(currentUser.username);
+  // Find actual username case-insensitively
+  const actualTo = Object.keys(db.users).find(u=>u.toLowerCase()===toUser.toLowerCase());
+  if (!actualTo || !db.users[actualTo]) { showToast('User not found!'); return; }
+  const actualMe = Object.keys(db.users).find(u=>u.toLowerCase()===currentUser.username.toLowerCase()) || currentUser.username;
+  db.users[actualTo].requests=db.users[actualTo].requests||[];
+  if (!db.users[actualTo].requests.includes(actualMe)) db.users[actualTo].requests.push(actualMe);
   currentUser.sentRequests=currentUser.sentRequests||[];
-  if (!currentUser.sentRequests.includes(toUser)) currentUser.sentRequests.push(toUser);
-  db.users[currentUser.username]=currentUser;
+  if (!currentUser.sentRequests.includes(actualTo)) currentUser.sentRequests.push(actualTo);
+  db.users[actualMe]=currentUser;
   await saveDB();
-  showToast(`Request sent to ${toUser}! 👋`);
+  showToast(`Request sent to ${actualTo}! 👋`);
   searchFriend(); renderFriends();
 }
 
