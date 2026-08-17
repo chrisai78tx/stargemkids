@@ -1893,15 +1893,25 @@ function spawnSparkles() { const emojis=['⭐','💎','✨','🌟','💫']; for(
 // ======== INIT ========
 window.onload = async () => {
   document.getElementById('loadingScreen').style.display='flex';
-  await loadDB();
+  // Try loading DB up to 3 times in case of slow connection
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await loadDB();
+    if (Object.keys(db.users).length > 0) break;
+    if (attempt < 2) await new Promise(r => setTimeout(r, 1500));
+  }
   document.getElementById('loadingScreen').style.display='none';
-  const savedUser=localStorage.getItem('sgk_user');
-  if (savedUser && db.users[savedUser]) {
-    currentUser=db.users[savedUser];
-    if (!currentUser.outfit) currentUser.outfit=null;
-    if (!currentUser.background) currentUser.background=null;
-    if (!currentUser.skinTone) currentUser.skinTone='#F0C27F';
-    if (!currentUser.unlockedGames) currentUser.unlockedGames=[];
+  const savedUser = localStorage.getItem('sgk_user');
+  // Try exact match first, then case-insensitive
+  let matchedUser = savedUser && db.users[savedUser] ? savedUser
+    : savedUser ? Object.keys(db.users).find(u => u.toLowerCase() === savedUser.toLowerCase()) : null;
+  if (matchedUser && db.users[matchedUser]) {
+    currentUser = db.users[matchedUser];
+    localStorage.setItem('sgk_user', matchedUser); // normalize stored username
+    if (!currentUser.outfit) currentUser.outfit = null;
+    if (!currentUser.background) currentUser.background = null;
+    if (!currentUser.skinTone) currentUser.skinTone = '#F0C27F';
+    if (!currentUser.unlockedGames) currentUser.unlockedGames = [];
+    if (!currentUser.ownedItems) currentUser.ownedItems = [];
     startApp();
   } else {
     document.getElementById('authScreen').style.display='flex';
