@@ -599,9 +599,9 @@ function startApp() {
   startPolling();
 }
 
-function saveUser() {
+async function saveUser() {
   db.users[currentUser.username] = currentUser;
-  saveDB();
+  await saveDB();
 }
 
 // ======== PREA ========
@@ -1184,10 +1184,10 @@ function updateProfileAvatar() {
 // ======== GAMES ========
 const GAMES_LIST = [
   { id:'flappy', emoji:'🐦', name:'Flappy Bird', desc:'Tap to flap! Avoid the pipes.' },
-  { id:'maze',   emoji:'🌀', name:'Maze Game',   desc:'Navigate the maze with arrow keys.' },
+  { id:'colortap',emoji:'🎨', name:'Color Tap',   desc:'Tap the matching color before time runs out!' },
   { id:'stack',  emoji:'📦', name:'Stack Blocks', desc:'Tap to stack sliding blocks!' },
   { id:'snake',  emoji:'🐍', name:'Snake',        desc:'Classic snake — eat & grow!' },
-  { id:'memory', emoji:'🧩', name:'Memory Match', desc:'Flip & match all emoji pairs.' },
+  { id:'breakout',emoji:'🧱', name:'Brick Breaker', desc:'Bounce the ball and smash all the bricks!' },
   { id:'reaction',emoji:'⚡',name:'Reaction Tap', desc:'Tap the circle as fast as you can!' },
 ];
 
@@ -1240,23 +1240,24 @@ function launchGame(id) {
   overlay.classList.add('active');
   activeGame = id;
   if (id==='flappy') startFlappy(area);
-  else if (id==='maze') startMaze(area);
+  else if (id==='colortap') startColorTap(area);
   else if (id==='stack') startStack(area);
   else if (id==='snake') startSnake(area);
-  else if (id==='memory') startMemory(area);
+  else if (id==='breakout') startBreakout(area);
   else if (id==='reaction') startReaction(area);
 }
 
 function closeGame() {
   document.getElementById('gameOverlay').classList.remove('active');
   if (gameAnimFrame) { cancelAnimationFrame(gameAnimFrame); gameAnimFrame = null; }
+  if (window._gameCleanup) { window._gameCleanup(); window._gameCleanup = null; }
+  if (window._gameKeyHandler) { document.removeEventListener('keydown', window._gameKeyHandler); window._gameKeyHandler = null; }
+  if (window._gameInterval) { clearInterval(window._gameInterval); window._gameInterval = null; }
   // Remove event listeners by replacing area
   const area = document.getElementById('gameArea');
   const msg = document.getElementById('gameMsg');
   area.innerHTML = ''; area.appendChild(msg); msg.style.display='none';
   activeGame = null;
-  if (window._gameKeyHandler) { document.removeEventListener('keydown', window._gameKeyHandler); window._gameKeyHandler = null; }
-  if (window._gameInterval) { clearInterval(window._gameInterval); window._gameInterval = null; }
 }
 
 function setGameScore(txt) { document.getElementById('gameOverlayScore').textContent = txt; }
@@ -1362,87 +1363,87 @@ function startFlappy(area) {
   loop();
 }
 
-// ---------- MAZE GAME ----------
-function startMaze(area) {
-  const COLS=13, ROWS=13, CELL=28;
-  const W=COLS*CELL, H=ROWS*CELL;
-  const canvas=document.createElement('canvas');
-  canvas.width=W; canvas.height=H;
-  canvas.style.cssText='border-radius:12px;touch-action:none;';
-  area.appendChild(canvas);
+// ---------- COLOR TAP ----------
+function startColorTap(area) {
+  const COLORS = [
+    {name:'Red',hex:'#ef4444'},{name:'Blue',hex:'#3b82f6'},
+    {name:'Green',hex:'#10b981'},{name:'Yellow',hex:'#f59e0b'},
+    {name:'Purple',hex:'#7c3aed'},{name:'Pink',hex:'#ec4899'},
+    {name:'Orange',hex:'#f97316'},{name:'Cyan',hex:'#06b6d4'}
+  ];
+  let score=0, lives=3, round=0, timer=null, timeLeft=3, preaRoundsEarned=0;
 
-  // Mobile arrows
-  const arrowsDiv = document.createElement('div');
-  arrowsDiv.className='mobile-arrows';
-  arrowsDiv.innerHTML=`<div class="arrows-row"><button class="arrow-btn" id="mazU">⬆️</button></div>
-    <div class="arrows-row"><button class="arrow-btn" id="mazL">⬅️</button><button class="arrow-btn" id="mazD">⬇️</button><button class="arrow-btn" id="mazR">➡️</button></div>`;
-  area.appendChild(arrowsDiv);
+  const wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;';
 
-  const ctx=canvas.getContext('2d');
+  const livesEl=document.createElement('div');
+  livesEl.style.cssText='color:white;font-size:20px;';
 
-  // Generate maze using recursive backtracker
-  function makeMaze() {
-    const visited=Array.from({length:ROWS},()=>Array(COLS).fill(false));
-    // walls: each cell has {r,l,t,b}
-    const walls=Array.from({length:ROWS},()=>Array.from({length:COLS},()=>({r:true,l:true,t:true,b:true})));
-    function carve(row,col){
-      visited[row][col]=true;
-      const dirs=[[0,1,'r','l'],[0,-1,'l','r'],[1,0,'b','t'],[-1,0,'t','b']].sort(()=>Math.random()-.5);
-      dirs.forEach(([dr,dc,w1,w2])=>{
-        const nr=row+dr, nc=col+dc;
-        if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!visited[nr][nc]){
-          walls[row][col][w1]=false; walls[nr][nc][w2]=false; carve(nr,nc);
+  const promptEl=document.createElement('div');
+  promptEl.style.cssText='font-size:22px;font-weight:900;color:white;text-align:center;line-height:1.3;';
+
+  const timerBar=document.createElement('div');
+  timerBar.style.cssText='width:280px;height:10px;background:rgba(255,255,255,.2);border-radius:10px;overflow:hidden;';
+  const timerFill=document.createElement('div');
+  timerFill.style.cssText='height:100%;background:#f59e0b;border-radius:10px;transition:width .1s linear;width:100%;';
+  timerBar.appendChild(timerFill);
+
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:280px;';
+
+  wrap.appendChild(livesEl); wrap.appendChild(promptEl); wrap.appendChild(timerBar); wrap.appendChild(grid);
+  area.insertBefore(wrap, document.getElementById('gameMsg'));
+
+  function nextRound() {
+    if (lives<=0) return;
+    round++;
+    clearInterval(timer);
+    const correct = COLORS[Math.floor(Math.random()*COLORS.length)];
+    // pick 3 other distractors
+    const pool = COLORS.filter(c=>c.name!==correct.name).sort(()=>Math.random()-.5).slice(0,3);
+    const choices = [...pool, correct].sort(()=>Math.random()-.5);
+    // Show color name in a DIFFERENT color for extra challenge
+    const displayColor = COLORS.filter(c=>c.name!==correct.name)[Math.floor(Math.random()*7)].hex;
+    promptEl.innerHTML = `Tap: <span style="color:${displayColor};font-size:28px;">${correct.name}</span>`;
+    grid.innerHTML='';
+    choices.forEach(c=>{
+      const btn=document.createElement('button');
+      btn.style.cssText=`width:130px;height:70px;border-radius:14px;background:${c.hex};border:none;cursor:pointer;font-size:16px;font-weight:800;color:white;text-shadow:0 1px 3px rgba(0,0,0,.4);`;
+      btn.textContent=c.name;
+      btn.addEventListener('pointerdown',()=>{
+        clearInterval(timer);
+        if(c.name===correct.name){
+          score++; setGameScore(`Score: ${score} ❤️ ${lives}`);
+          if(score>0&&score%5===0&&preaRoundsEarned<10){addPrea(2);preaRoundsEarned++;}
+          showGameMsg('✅ Correct!',''); setTimeout(()=>{document.getElementById('gameMsg').style.display='none';nextRound();},600);
+        } else {
+          lives--; setGameScore(`Score: ${score} ❤️ ${lives}`);
+          if(lives<=0){showGameMsg('💀 Game Over',`Score: ${score}`);return;}
+          showGameMsg('❌ Wrong!',''); setTimeout(()=>{document.getElementById('gameMsg').style.display='none';nextRound();},600);
         }
       });
-    }
-    carve(0,0);
-    return walls;
+      grid.appendChild(btn);
+    });
+    // Countdown timer (gets faster each 5 rounds)
+    const maxTime = Math.max(1.5, 3 - Math.floor(round/5)*0.3);
+    timeLeft = maxTime;
+    timerFill.style.width='100%';
+    timer = setInterval(()=>{
+      timeLeft -= 0.1;
+      timerFill.style.width = Math.max(0, (timeLeft/maxTime)*100)+'%';
+      if(timeLeft<=0){
+        clearInterval(timer);
+        lives--; setGameScore(`Score: ${score} ❤️ ${lives}`);
+        if(lives<=0){showGameMsg('💀 Time Out!',`Score: ${score}`);return;}
+        showGameMsg('⏰ Too slow!',''); setTimeout(()=>{document.getElementById('gameMsg').style.display='none';nextRound();},600);
+      }
+    },100);
+    livesEl.textContent = '❤️'.repeat(lives);
   }
 
-  let walls=makeMaze(), player={r:0,c:0}, won=false;
-
-  function draw(){
-    ctx.fillStyle='#1a1a2e'; ctx.fillRect(0,0,W,H);
-    ctx.strokeStyle='#7c3aed'; ctx.lineWidth=2;
-    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-      const x=c*CELL, y=r*CELL, wl=walls[r][c];
-      if(wl.t){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+CELL,y);ctx.stroke();}
-      if(wl.b){ctx.beginPath();ctx.moveTo(x,y+CELL);ctx.lineTo(x+CELL,y+CELL);ctx.stroke();}
-      if(wl.l){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+CELL);ctx.stroke();}
-      if(wl.r){ctx.beginPath();ctx.moveTo(x+CELL,y);ctx.lineTo(x+CELL,y+CELL);ctx.stroke();}
-    }
-    // Goal
-    ctx.font=`${CELL-4}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🏆',(COLS-1)*CELL+CELL/2,(ROWS-1)*CELL+CELL/2);
-    // Player
-    ctx.fillText('😊',player.c*CELL+CELL/2,player.r*CELL+CELL/2);
-  }
-
-  function move(dr,dc){
-    if(won) return;
-    const w=walls[player.r][player.c];
-    if(dr===-1&&w.t||(dr===1&&w.b)||(dc===-1&&w.l)||(dc===1&&w.r)) return;
-    player.r+=dr; player.c+=dc;
-    draw();
-    if(player.r===ROWS-1&&player.c===COLS-1){
-      won=true; showGameMsg('🏆 You Win!','5 Prea earned!'); addPrea(5);
-    }
-  }
-
-  window._gameKeyHandler = e=>{
-    if(e.key==='ArrowUp')move(-1,0);
-    else if(e.key==='ArrowDown')move(1,0);
-    else if(e.key==='ArrowLeft')move(0,-1);
-    else if(e.key==='ArrowRight')move(0,1);
-  };
-  document.addEventListener('keydown',window._gameKeyHandler);
-  document.getElementById('mazU').addEventListener('pointerdown',()=>move(-1,0));
-  document.getElementById('mazD').addEventListener('pointerdown',()=>move(1,0));
-  document.getElementById('mazL').addEventListener('pointerdown',()=>move(0,-1));
-  document.getElementById('mazR').addEventListener('pointerdown',()=>move(0,1));
-
-  setGameScore('Reach 🏆!');
-  draw();
+  window._gameCleanup = ()=>clearInterval(timer);
+  setGameScore(`Score: 0 ❤️ 3`);
+  nextRound();
 }
 
 // ---------- STACK BLOCKS ----------
@@ -1618,59 +1619,94 @@ function startSnake(area) {
   window._gameInterval=setInterval(step,120);
 }
 
-// ---------- MEMORY MATCH ----------
-function startMemory(area) {
-  const EMOJIS=['🌟','💖','🎉','🌈','🦄','✨','🍭','🔥'];
-  let cards=[], flipped=[], matched=[], lockBoard=false, moves=0, won=false;
+// ---------- BRICK BREAKER ----------
+function startBreakout(area) {
+  const W=300, H=400;
+  const canvas=document.createElement('canvas');
+  canvas.width=W; canvas.height=H;
+  canvas.style.cssText='border-radius:12px;touch-action:none;display:block;';
+  area.insertBefore(canvas, document.getElementById('gameMsg'));
+  const ctx=canvas.getContext('2d');
 
-  function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
+  const COLS=7, ROWS=5, BW=36, BH=14, BPAD=4;
+  const BOFF_X=(W-COLS*(BW+BPAD)+BPAD)/2, BOFF_Y=30;
+  const COLORS=['#ef4444','#f97316','#f59e0b','#10b981','#3b82f6','#7c3aed','#ec4899'];
 
-  function reset(){
-    const pool=shuffle([...EMOJIS,...EMOJIS]);
-    cards=pool.map((e,i)=>({id:i,emoji:e,flippedState:false,matched:false}));
-    flipped=[]; matched=[]; lockBoard=false; moves=0; won=false;
-    document.getElementById('gameMsg').style.display='none';
-    setGameScore('Moves: 0');
-    render();
+  let bricks=[], ball={}, pad={}, score=0, lives=3, running=false, raf=null, preaEarned=0;
+
+  function init(){
+    bricks=[];
+    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++)
+      bricks.push({x:BOFF_X+c*(BW+BPAD),y:BOFF_Y+r*(BH+BPAD),alive:true,color:COLORS[r%COLORS.length]});
+    ball={x:W/2,y:H-60,vx:2.5,vy:-3.5,r:7};
+    pad={x:W/2-30,y:H-20,w:60,h:10};
+    running=true;
   }
 
-  function render(){
-    area.querySelector('.memory-grid')?.remove();
-    const grid=document.createElement('div');
-    grid.className='memory-grid';
-    grid.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px;max-width:340px;';
-    cards.forEach((card,i)=>{
-      const btn=document.createElement('button');
-      btn.style.cssText=`width:68px;height:68px;border-radius:14px;font-size:${card.flippedState||card.matched?'32':'24'}px;border:3px solid ${card.matched?'#10b981':'#7c3aed'};background:${card.matched?'#f0fdf4':card.flippedState?'#f5f3ff':'#1a1a2e'};cursor:pointer;transition:all .2s;color:white;`;
-      btn.textContent = (card.flippedState||card.matched) ? card.emoji : '❓';
-      if(!card.matched) btn.addEventListener('click',()=>flipCard(i));
-      grid.appendChild(btn);
+  function draw(){
+    ctx.fillStyle='#1a1a2e'; ctx.fillRect(0,0,W,H);
+    bricks.forEach(b=>{
+      if(!b.alive) return;
+      ctx.fillStyle=b.color; ctx.beginPath();
+      ctx.roundRect(b.x,b.y,BW,BH,4); ctx.fill();
     });
-    area.insertBefore(grid, document.getElementById('gameMsg'));
+    // Paddle
+    ctx.fillStyle='#a78bfa'; ctx.beginPath();
+    ctx.roundRect(pad.x,pad.y,pad.w,pad.h,6); ctx.fill();
+    // Ball
+    ctx.fillStyle='white'; ctx.beginPath();
+    ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill();
+    // Score/lives
+    ctx.fillStyle='rgba(255,255,255,.7)'; ctx.font='13px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(`❤️ ${lives}`,6,18);
+    ctx.textAlign='right'; ctx.fillText(`⭐ ${score}`,W-6,18);
   }
 
-  function flipCard(i){
-    if(lockBoard||cards[i].flippedState||cards[i].matched) return;
-    cards[i].flippedState=true;
-    flipped.push(i);
-    render();
-    if(flipped.length===2){
-      lockBoard=true; moves++;
-      setGameScore(`Moves: ${moves}`);
-      const [a,b]=flipped;
-      if(cards[a].emoji===cards[b].emoji){
-        cards[a].matched=cards[b].matched=true;
-        matched.push(a,b);
-        flipped=[]; lockBoard=false;
-        render();
-        if(matched.length===cards.length){won=true;showGameMsg('🎉 You Win!','5 Prea earned!');addPrea(5);}
-      } else {
-        setTimeout(()=>{cards[a].flippedState=cards[b].flippedState=false;flipped=[];lockBoard=false;render();},900);
-      }
+  function step(){
+    if(!running){draw();return;}
+    ball.x+=ball.vx; ball.y+=ball.vy;
+    // Wall bounce
+    if(ball.x-ball.r<0){ball.x=ball.r;ball.vx*=-1;}
+    if(ball.x+ball.r>W){ball.x=W-ball.r;ball.vx*=-1;}
+    if(ball.y-ball.r<0){ball.y=ball.r;ball.vy*=-1;}
+    // Paddle bounce
+    if(ball.y+ball.r>=pad.y&&ball.x>=pad.x&&ball.x<=pad.x+pad.w&&ball.vy>0){
+      ball.vy*=-1; ball.vx+=(ball.x-(pad.x+pad.w/2))*0.05;
     }
+    // Bottom — lose life
+    if(ball.y-ball.r>H){
+      lives--; setGameScore(`⭐ ${score} ❤️ ${lives}`);
+      if(lives<=0){running=false;showGameMsg('💀 Game Over',`Score: ${score}`);draw();return;}
+      ball={x:W/2,y:H-60,vx:2.5*(Math.random()>.5?1:-1),vy:-3.5,r:7};
+    }
+    // Brick collision
+    bricks.forEach(b=>{
+      if(!b.alive) return;
+      if(ball.x+ball.r>b.x&&ball.x-ball.r<b.x+BW&&ball.y+ball.r>b.y&&ball.y-ball.r<b.y+BH){
+        b.alive=false; ball.vy*=-1; score++;
+        setGameScore(`⭐ ${score} ❤️ ${lives}`);
+        if(score>0&&score%10===0&&preaEarned<15){addPrea(3);preaEarned+=3;}
+      }
+    });
+    // All bricks gone
+    if(bricks.every(b=>!b.alive)){running=false;showGameMsg('🏆 You Win!',`Score: ${score} +5 Prea`);addPrea(5);draw();return;}
+    draw();
+    raf=requestAnimationFrame(step);
   }
 
-  reset();
+  // Paddle control: touch/mouse
+  canvas.addEventListener('pointermove',e=>{
+    const rect=canvas.getBoundingClientRect();
+    pad.x=Math.min(W-pad.w,Math.max(0,(e.clientX-rect.left)-pad.w/2));
+  });
+  canvas.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const rect=canvas.getBoundingClientRect();
+    pad.x=Math.min(W-pad.w,Math.max(0,(e.touches[0].clientX-rect.left)-pad.w/2));
+  },{passive:false});
+
+  window._gameCleanup=()=>{running=false;if(raf)cancelAnimationFrame(raf);};
+  init(); setGameScore(`⭐ 0 ❤️ 3`); raf=requestAnimationFrame(step);
 }
 
 // ---------- REACTION TAP ----------
