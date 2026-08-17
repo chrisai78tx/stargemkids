@@ -556,9 +556,23 @@ async function handleAuth() {
   if (!username||!password) { errEl.textContent='Fill in both fields!'; return; }
   document.getElementById('authBtn').textContent = '⏳ Loading...';
   document.getElementById('authBtn').disabled = true;
-  await loadDB();
+  errEl.textContent = '';
+
+  // Retry DB load up to 4 times so slow connections don't cause false "wrong username"
+  for (let attempt = 0; attempt < 4; attempt++) {
+    await loadDB();
+    if (Object.keys(db.users).length > 0) break;
+    if (attempt < 3) {
+      document.getElementById('authBtn').textContent = `⏳ Connecting... (${attempt+2}/4)`;
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+
+  // Case-insensitive username lookup
+  const matchedKey = Object.keys(db.users).find(u => u.toLowerCase() === username.toLowerCase());
+
   if (authMode==='signup') {
-    if (db.users[username]) { errEl.textContent='Username taken!'; document.getElementById('authBtn').textContent='Sign Up'; document.getElementById('authBtn').disabled=false; return; }
+    if (matchedKey) { errEl.textContent='Username taken! Try a different one.'; document.getElementById('authBtn').textContent='Sign Up'; document.getElementById('authBtn').disabled=false; return; }
     if (username.length<3) { errEl.textContent='Username needs 3+ characters!'; document.getElementById('authBtn').textContent='Sign Up'; document.getElementById('authBtn').disabled=false; return; }
     db.users[username] = { username, password, prea:50, face:'😊', hat:null, accessory:null, outfit:null, background:null, skinTone:'#F0C27F', ownedItems:[], preaEarned:50, unlockedGames:[] };
     await saveDB();
@@ -566,14 +580,26 @@ async function handleAuth() {
     localStorage.setItem('sgk_user', username);
     showToast('Welcome! You got 50 💎 Prea! 🎉');
   } else {
-    if (!db.users[username]||db.users[username].password!==password) { errEl.textContent='Wrong username or password!'; document.getElementById('authBtn').textContent='Log In'; document.getElementById('authBtn').disabled=false; return; }
-    currentUser = db.users[username];
+    if (!matchedKey) {
+      if (Object.keys(db.users).length === 0) {
+        errEl.textContent = '⚠️ Could not connect. Check your internet and try again!';
+      } else {
+        errEl.textContent = 'Username not found! Check spelling or sign up.';
+      }
+      document.getElementById('authBtn').textContent='Log In'; document.getElementById('authBtn').disabled=false; return;
+    }
+    if (db.users[matchedKey].password !== password) {
+      errEl.textContent = 'Wrong password! Try again.';
+      document.getElementById('authBtn').textContent='Log In'; document.getElementById('authBtn').disabled=false; return;
+    }
+    currentUser = db.users[matchedKey];
     // Migrate old accounts
     if (!currentUser.outfit) currentUser.outfit = null;
     if (!currentUser.background) currentUser.background = null;
     if (!currentUser.skinTone) currentUser.skinTone = '#F0C27F';
     if (!currentUser.unlockedGames) currentUser.unlockedGames = [];
-    localStorage.setItem('sgk_user', username);
+    if (!currentUser.ownedItems) currentUser.ownedItems = [];
+    localStorage.setItem('sgk_user', matchedKey);
   }
   startApp();
 }
