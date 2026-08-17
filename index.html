@@ -1715,33 +1715,14 @@ function startReaction(area) {
     if(!circleVisible){ return; }
     clearTimeout(hideTimeout);
     const ms=Date.now()-showTime;
-    circ    circleVisible=false; circle.style.display='none';
-    clearTimeout(hideTimeout);
+    circleVisible=false; circle.style.display='none';
     rounds++;
     const label = ms<200?'⚡ Lightning Fast!':ms<300?'🌟 Great!':ms<500?'👍 Good':'😅 Too Slow';
     totalMs+=ms;
     info.textContent=`${label} — ${ms}ms`;
     stats.textContent=`Round ${rounds} • Avg: ${Math.round(totalMs/rounds)}ms`;
     addPrea(1);
-    scheduleNext();
-  });
-
-  scheduleNext();
-}
-
-// ======== SPARKLES / TOAST ========
-
-
-</script>
-</body>
-</html>
-leVisible=false; circle.style.display='none';
-    rounds++; totalMs+=ms;
-    const avg=Math.round(totalMs/rounds);
-    stats.textContent=`Round ${rounds} — ${ms}ms | Avg: ${avg}ms`;
-    info.textContent=ms<300?'🔥 Lightning fast!':ms<500?'⚡ Great!':ms<800?'👍 Good!':'😅 Keep trying!';
-    addPrea(1);
-    setGameScore(`Avg: ${avg}ms`);
+    setGameScore(`Avg: ${Math.round(totalMs/rounds)}ms avg`);
     scheduleNext();
   });
 
